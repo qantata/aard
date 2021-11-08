@@ -1,8 +1,23 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import React from "react";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+import { RoutingContext } from "../src/routing/RoutingContext";
+import { RouteRenderer } from "../src/routing/RouteRenderer";
+import { createRouter } from "../src/routing/createRouter";
+import { routes } from "../src/routing/routes";
+
+function App() {
+  // Make sure we only render on the client
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const router: any = createRouter(routes);
+
+  return (
+    <RoutingContext.Provider value={router.context}>
+      <RouteRenderer />
+    </RoutingContext.Provider>
+  );
 }
 
-export default MyApp
+export default App;
