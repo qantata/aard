@@ -1,0 +1,24 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
+
+model Library {
+  id   String @id
+  root String
+}
+
+model Movie {
+  id       String @id
+  title    String
+  filepath String
+}
