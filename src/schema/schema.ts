@@ -1,19 +1,21 @@
 import { makeSchema, queryType } from "nexus";
 import path from "path";
 
+import { Library as PLibrary } from "nexus-prisma";
+import { Movie as PMovie } from "nexus-prisma";
 import { Library } from "./Library";
 import { Movie } from "./Movie";
 
 const Query = queryType({
   definition(t) {
     t.list.field("libraries", {
-      type: "Library",
+      type: PLibrary.$name,
       async resolve(_root, _args, ctx) {
         return await ctx.prisma.library.findMany();
       },
     });
     t.list.field("movies", {
-      type: "Movie",
+      type: PMovie.$name,
       async resolve(_root, _args, ctx) {
         return await ctx.prisma.movie.findMany();
       },
