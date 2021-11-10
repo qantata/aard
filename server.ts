@@ -3,6 +3,8 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { execute, subscribe } from "graphql";
+import path from "path";
+import fs from "fs";
 
 import { context } from "./src/context";
 import { schema } from "./src/schema/schema";
@@ -37,6 +39,39 @@ nextApp.prepare().then(async () => {
     }
   });
 
+  // Movie covers. TODO: Move elsewhere or else this method is going to be way too long
+  app.get("/data/movies/:id/cover", async (req, res) => {
+    const movie = await context().prisma.movie.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!movie) {
+      res.status(404).send();
+    } else {
+      // TODO: Improve this lol
+      const b = path.basename(movie.filepath);
+      const possibilities = [
+        movie.filepath.replace(".mp4", ".jpg"),
+        movie.filepath.replace(
+          b,
+          b.toLocaleLowerCase().replace(".mp4", ".jpg")
+        ),
+        movie.filepath.replace(b, "Cover.jpg"),
+        movie.filepath.replace(b, "cover.jpg"),
+      ];
+
+      for (const p of possibilities) {
+        if (fs.existsSync(p)) {
+          return res.sendFile(p);
+        }
+      }
+
+      res.status(404).send();
+    }
+  });
+
   SubscriptionServer.create(
     {
       schema,
@@ -44,6 +79,7 @@ nextApp.prepare().then(async () => {
       subscribe,
     },
     {
+      // @ts-ignore
       server: app,
       path: server.graphqlPath,
     }
