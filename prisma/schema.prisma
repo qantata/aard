@@ -13,12 +13,16 @@ generator nexusPrisma {
 }
 
 model Library {
-  id   String @id
-  root String
+  id     String  @id
+  root   String
+  movies Movie[]
 }
 
 model Movie {
-  id       String @id
-  title    String
-  filepath String
+  id        String  @id
+  title     String
+  year      Int?
+  filepath  String
+  library   Library @relation(fields: [libraryId], references: [id])
+  libraryId String
 }

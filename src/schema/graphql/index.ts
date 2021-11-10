@@ -1,2 +1,2 @@
-export { Library, QueryLibraries } from "./library";
+export { Library, QueryLibraries, MutationCreateLibrary } from "./library";
 export { Movie, QueryMovies } from "./movie";

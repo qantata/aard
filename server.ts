@@ -7,6 +7,7 @@ import { execute, subscribe } from "graphql";
 
 import { context } from "./src/context";
 import { schema } from "./src/schema/schema";
+import { applyPrismaMiddleware } from "./src/middleware";
 
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
@@ -21,6 +22,7 @@ nextApp.prepare().then(async () => {
 
   await server.start();
   server.applyMiddleware({ app });
+  applyPrismaMiddleware();
 
   // Handle all paths as valid routes except for /data/*
   app.get(/^\/(?!(data)).*/, (req, res, next) => {
