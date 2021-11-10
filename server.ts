@@ -1,4 +1,3 @@
-import http from "http";
 import next from "next";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -11,10 +10,10 @@ import { applyPrismaMiddleware } from "./src/middleware";
 
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
+const handle = nextApp.getRequestHandler();
 
 nextApp.prepare().then(async () => {
   const app = express();
-  const httpServer = http.createServer(app);
   const server = new ApolloServer({
     context,
     schema,
@@ -23,6 +22,11 @@ nextApp.prepare().then(async () => {
   await server.start();
   server.applyMiddleware({ app });
   applyPrismaMiddleware();
+
+  // Needed for next hmr to work
+  app.all("/_next/webpack-hmr", async (req: any, res: any) => {
+    handle(req, res);
+  });
 
   // Handle all paths as valid routes except for /data/*
   app.get(/^\/(?!(data)).*/, (req, res, next) => {
@@ -40,13 +44,13 @@ nextApp.prepare().then(async () => {
       subscribe,
     },
     {
-      server: httpServer,
+      server: app,
       path: server.graphqlPath,
     }
   );
 
   const PORT = 5005;
-  httpServer.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`🚀 Server ready at :${PORT}`);
     console.log(
       `🚀 Queries ready at http://localhost:${PORT}${server.graphqlPath}`
