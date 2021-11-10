@@ -1,3 +1,2 @@
-export { Query } from "./query";
-export { Library } from "./library";
-export { Movie } from "./movie";
+export { Library, QueryLibraries } from "./library";
+export { Movie, QueryMovies } from "./movie";

@@ -1,4 +1,4 @@
-import { objectType } from "nexus";
+import { extendType, objectType } from "nexus";
 
 import { Movie as PMovie } from "nexus-prisma";
 
@@ -9,5 +9,17 @@ export const Movie = objectType({
     t.field(PMovie.id);
     t.field(PMovie.title);
     t.field(PMovie.filepath);
+  },
+});
+
+export const QueryMovies = extendType({
+  type: "Query",
+  definition(t) {
+    t.list.field("movies", {
+      type: PMovie.$name,
+      async resolve(_root, _args, ctx) {
+        return await ctx.prisma.movie.findMany();
+      },
+    });
   },
 });
