@@ -2,7 +2,8 @@
   "name": "aard",
   "private": true,
   "scripts": {
-    "dev": "npx nodemon server.ts",
+    "dev": "npx ts-node server.ts",
+    "dev:w": "npx nodemon server.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
