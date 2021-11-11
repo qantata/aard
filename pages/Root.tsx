@@ -20,6 +20,15 @@ const Root: React.FunctionComponent = ({ children }) => {
           <Typography variant="h6" color="inherit" component="div">
             <Link to="/movies">Aard</Link>
           </Typography>
+
+          <Typography
+            variant="subtitle1"
+            color="inherit"
+            component="div"
+            sx={{ marginLeft: 4 }}
+          >
+            <Link to="/libraries">Manage Libraries</Link>
+          </Typography>
         </Toolbar>
       </AppBar>
 

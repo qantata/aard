@@ -1,6 +1,7 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 
 import { Library as PLibrary } from "nexus-prisma";
+import { isDirectory } from "../../utils/filesystem";
 
 export const Library = objectType({
   name: PLibrary.$name,
@@ -26,12 +27,18 @@ export const QueryLibraries = extendType({
 export const MutationCreateLibrary = extendType({
   type: "Mutation",
   definition(t) {
-    t.field("createLibrary", {
+    t.nullable.field("createLibrary", {
       type: PLibrary.$name,
       args: {
         root: nonNull(stringArg()),
       },
       async resolve(_root, args, ctx) {
+        const isDir = await isDirectory(args.root);
+        // TODO: Send an actual error instead of just null
+        if (!isDir) {
+          return null;
+        }
+
         const library = await ctx.prisma.library.create({
           data: {
             // TODO: Generate id's properly
@@ -41,6 +48,27 @@ export const MutationCreateLibrary = extendType({
         });
 
         return library;
+      },
+    });
+
+    t.nullable.field("deleteLibrary", {
+      type: PLibrary.$name,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      async resolve(_root, args, ctx) {
+        try {
+          const library = await ctx.prisma.library.delete({
+            where: {
+              id: args.id,
+            },
+          });
+
+          return library;
+        } catch (err) {
+          console.error("Couldn't delete library:", err);
+          return null;
+        }
       },
     });
   },

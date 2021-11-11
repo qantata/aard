@@ -2,34 +2,14 @@ import klaw from "klaw";
 import path from "path";
 import through2 from "through2";
 import fs from "fs";
-import fse from "fs-extra";
 import { filenameParse } from "@ctrl/video-filename-parser";
 
 import { context } from "./context";
-
-const isDirectory = async (path: string) => {
-  return new Promise((resolve) => {
-    fs.lstat(path, (err, stats) => {
-      if (err) {
-        console.error(err);
-        resolve(false);
-        return;
-      }
-
-      resolve(stats.isDirectory());
-    });
-  });
-};
+import { isDirectory } from "./utils/filesystem";
 
 // TODO: Handle errors better
 export const scanNewLibrary = async (id: string, root: string) => {
   console.log(`Scanning library with id ${id} and root ${root}`);
-
-  const exists = await fse.pathExists(root);
-  if (!exists) {
-    console.error(`Path doesn't exist: ${root}`);
-    return;
-  }
 
   const isDir = await isDirectory(root);
   if (!isDir) {

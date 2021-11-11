@@ -1,7 +1,7 @@
 import { loadQuery } from "react-relay";
 import { RouteConfig } from "react-router-config";
-import { RelayEnvironment } from "../relay-environment";
 
+import { RelayEnvironment } from "../relay-environment";
 import { TSResource } from "./TSResource";
 
 export const routes: RouteConfig[] = [
@@ -39,6 +39,20 @@ export const routes: RouteConfig[] = [
         prepare: (params: any) => {
           return {
             id: params.id,
+          };
+        },
+      },
+      {
+        path: "/libraries",
+        exact: true,
+        component: TSResource(
+          "Libraries",
+          () => import("../../pages/Libraries")
+        ),
+        prepare: () => {
+          const Query = require("../__generated__/LibrariesQuery.graphql");
+          return {
+            librariesQuery: loadQuery(RelayEnvironment, Query, {}),
           };
         },
       },
