@@ -8,7 +8,9 @@ const Root: React.FunctionComponent = ({ children }) => {
   const history = useHistory();
 
   useEffect(() => {
-    history.push("/movies");
+    if (history.location.pathname === "/") {
+      history.push("/movies");
+    }
   }, []);
 
   return (
@@ -16,7 +18,7 @@ const Root: React.FunctionComponent = ({ children }) => {
       <AppBar position="sticky">
         <Toolbar variant="dense">
           <Typography variant="h6" color="inherit" component="div">
-            <Link to="/">Aard</Link>
+            <Link to="/movies">Aard</Link>
           </Typography>
         </Toolbar>
       </AppBar>
