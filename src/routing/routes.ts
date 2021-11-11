@@ -13,7 +13,8 @@ export const routes: RouteConfig[] = [
     routes: [
       {
         path: "/movies",
-        component: TSResource("movies", () => import("../../pages/Movies")),
+        exact: true,
+        component: TSResource("Movies", () => import("../../pages/Movies")),
         prepare: () => {
           const Query = require("../__generated__/MoviesQuery.graphql");
           return {
@@ -25,6 +26,19 @@ export const routes: RouteConfig[] = [
                 fetchPolicy: "network-only",
               }
             ),
+          };
+        },
+      },
+      {
+        path: "/movies/:id",
+        exact: true,
+        component: TSResource(
+          "Movie",
+          () => import("../../pages/movies/Movie")
+        ),
+        prepare: (params: any) => {
+          return {
+            id: params.id,
           };
         },
       },

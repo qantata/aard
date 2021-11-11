@@ -39,6 +39,21 @@ nextApp.prepare().then(async () => {
     }
   });
 
+  // Movie video file
+  app.get("/data/movies/:id/video", async (req, res) => {
+    const movie = await context().prisma.movie.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!movie) {
+      res.status(404).send();
+    } else {
+      res.sendFile(movie.filepath);
+    }
+  });
+
   // Movie covers. TODO: Move elsewhere or else this method is going to be way too long
   app.get("/data/movies/:id/cover", async (req, res) => {
     const movie = await context().prisma.movie.findUnique({
