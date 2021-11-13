@@ -4,6 +4,9 @@
 prisma/migrations/
 prisma/seed.ts
 
+# dev db
+prisma/dev.db
+
 # generated files
 schema.graphql
 nexus.ts
