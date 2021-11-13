@@ -11,7 +11,16 @@ import { schema } from "./src/schema/schema";
 import { applyPrismaMiddleware } from "./src/middleware";
 
 const dev = process.env.NODE_ENV !== "production";
-const nextApp = next({ dev });
+const nextApp = next({
+  dev,
+  conf: {
+    reactStrictMode: true,
+    useFileSystemPublicRoutes: false,
+    experimental: {
+      reactRoot: true,
+    },
+  },
+});
 const handle = nextApp.getRequestHandler();
 
 nextApp.prepare().then(async () => {
