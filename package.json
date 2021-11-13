@@ -1,10 +1,12 @@
 {
   "name": "aard",
+  "version": "alpha.2021.1114.0",
   "private": true,
+  "bin": "build/server.js",
   "scripts": {
     "dev": "npx ts-node server.ts",
     "dev:w": "npx nodemon server.ts",
-    "build": "next build",
+    "build": "next build && npx tsc --project server.tsconfig.json",
     "start": "NODE_ENV=production ts-node server.ts",
     "lint": "next lint",
     "p:generate": "npx prisma generate",
@@ -71,5 +73,8 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
+  },
+  "pkg": {
+    "targets": ["node16-linux-x64", "node16-win-x64", "node16-macos-x64"]
   }
 }
