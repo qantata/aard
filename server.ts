@@ -111,12 +111,15 @@ nextApp.prepare().then(async () => {
 
   const PORT = 5005;
   app.listen(PORT, () => {
-    console.log(`🚀 Server ready at :${PORT}`);
-    console.log(
-      `🚀 Queries ready at http://localhost:${PORT}${server.graphqlPath}`
-    );
-    console.log(
-      `🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`
-    );
+    console.log(`> Server ready at :${PORT}`);
+
+    if (dev) {
+      console.log(
+        `> Queries ready at http://localhost:${PORT}${server.graphqlPath}`
+      );
+      console.log(
+        `> Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`
+      );
+    }
   });
 });
