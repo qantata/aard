@@ -3,6 +3,10 @@
 # remove these later from ignored
 prisma/seed.ts
 
+# binaries and other files related to building
+/migration-engine-debian-openssl-1.1.x
+/aard
+
 # dev db
 prisma/*.db*
 
