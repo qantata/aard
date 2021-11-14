@@ -1,6 +1,6 @@
 {
   "name": "aard",
-  "version": "alpha.2021.1114.0",
+  "version": "2021.1114.0",
   "private": true,
   "bin": "build/server.js",
   "scripts": {
@@ -24,7 +24,9 @@
     "@mui/material": "^5.1.0",
     "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
     "@mui/styled-engine-sc": "^5.1.0",
-    "@prisma/client": "^3.4.1",
+    "@prisma/client": "^3.4.2",
+    "@prisma/migrate": "^3.4.2",
+    "@prisma/sdk": "^3.4.2",
     "apollo-server-express": "^3.5.0",
     "babel-plugin-relay": "^12.0.0",
     "express": "^4.17.1",
@@ -61,7 +63,7 @@
     "eslint": "7",
     "eslint-config-next": "12.0.3",
     "nodemon": "^2.0.14",
-    "prisma": "3.4.1",
+    "prisma": "^3.4.2",
     "relay-compiler": "^12.0.0",
     "relay-compiler-language-typescript": "^14.3.0",
     "relay-config": "^12.0.0",
@@ -75,6 +77,8 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "pkg": {
-    "targets": ["node16-linux-x64"]
+    "targets": [
+      "node16-linux-x64"
+    ]
   }
 }
