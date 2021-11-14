@@ -1,11 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # remove these later from ignored
-prisma/migrations/
 prisma/seed.ts
 
 # dev db
-prisma/dev.db
+prisma/*.db*
 
 # generated files
 schema.graphql
@@ -36,12 +35,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# env files
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
 .env.production.local
+.env.production
 
 # vercel
 .vercel
