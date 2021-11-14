@@ -7,6 +7,7 @@
     "dev": "npx ts-node server.ts",
     "dev:w": "npx nodemon server.ts",
     "build": "next build && npx tsc --project server.tsconfig.json",
+    "package": "npx pkg .",
     "start": "NODE_ENV=production ts-node server.ts",
     "lint": "next lint",
     "p:generate": "npx prisma generate",
