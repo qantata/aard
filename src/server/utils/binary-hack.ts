@@ -5,7 +5,7 @@ export default function () {
   var origSpawn = childProcess.spawn;
   function spawn() {
     // node_modules path of pkg's file system
-    const baseUrl = "/snapshot/aard-vite/node_modules";
+    const baseUrl = "/snapshot/aard/node_modules";
 
     /*
      * Add binaries that libraries use here.
