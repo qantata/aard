@@ -1,34 +1,21 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "commonjs",
-    "lib": ["dom", "esnext"],
-    "incremental": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
-    "checkJs": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "jsx": "preserve",
+    "skipLibCheck": false,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "noImplicitThis": false,
-
-    /* Module Resolution */
-    "esModuleInterop": true,
-    "moduleResolution": "node",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-
-    /* Type Checking */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
-    }
+    "noEmit": true,
+    "noImplicitThis": false,
+    "jsx": "react-jsx"
   },
-  "include": ["**/*.ts", "**/*.tsx", "react-env.d.ts"],
-  "exclude": ["node_modules", ".next"]
+  "include": ["./src"]
 }

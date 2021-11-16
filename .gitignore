@@ -1,56 +1,11 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# remove these later from ignored
-prisma/seed.ts
-
-# binaries and other files related to building
-/migration-engine-debian-openssl-1.1.x
-/aard
-
-# dev db
-prisma/*.db*
-
-# generated files
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+yarn-error.log
 schema.graphql
 nexus.ts
 **/__generated__/**
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# env files
-.env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production.local
-.env.production
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
+prisma/seed.ts
+lib/
