@@ -3,7 +3,6 @@ node_modules
 dist
 dist-ssr
 *.local
-yarn-error.log
 schema.graphql
 nexus.ts
 **/__generated__/**
