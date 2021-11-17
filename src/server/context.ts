@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
-import { DATABASE_URL } from "./utils/constants";
+import { DATABASE_URL, DEV } from "./utils/constants";
 
 const prisma = new PrismaClient({
-  log: ["query"],
+  log: DEV ? ["query"] : undefined,
   datasources: {
     db: {
       url: `file:${DATABASE_URL}`,
