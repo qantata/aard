@@ -1,26 +1,30 @@
 import dotenv from "dotenv";
 
+import { DEV, IS_PKG } from "./constants";
+
 // Loads environment files
 const config = () => {
+  const BASE = IS_PKG ? "/snapshot/aard" : ".";
+
   dotenv.config({
-    path: ".env",
+    path: `${BASE}/.env`,
   });
 
-  if (process.env.NODE_ENV === "development") {
+  if (DEV) {
     dotenv.config({
-      path: ".env.development",
+      path: `${BASE}/.env.development`,
     });
 
     dotenv.config({
-      path: ".env.development.local",
+      path: `${BASE}/.env.development.local`,
     });
   } else {
     dotenv.config({
-      path: ".env.production",
+      path: `${BASE}/.env.production`,
     });
 
     dotenv.config({
-      path: ".env.production.local",
+      path: `${BASE}/.env.production.local`,
     });
   }
 };
