@@ -17,7 +17,7 @@ import { execute, subscribe } from "graphql";
 import { context } from "./context";
 import { schema } from "./schema/schema";
 import { applyPrismaMiddleware } from "./middleware";
-import { DEV } from "./utils/constants";
+import { DEV, VERSION } from "./utils/constants";
 import { migrateDb } from "./utils/migrate-db";
 
 const createServer = async () => {
@@ -115,7 +115,7 @@ const createServer = async () => {
 
   await vite.listen(VITE_PORT);
   app.listen(EXPRESS_PORT, () => {
-    console.log(`> App ready at http://localhost:${VITE_PORT}`);
+    console.log(`> Aard version ${VERSION} ready at http://localhost:${VITE_PORT}`);
 
     if (DEV) {
       console.log(`> Queries ready at http://localhost:${EXPRESS_PORT}${server.graphqlPath}`);
