@@ -24,8 +24,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx semantic-release -d
-          npx semantic-release -d | grep -oP 'Published release \K.*? ' >> .next-version
+          npx semantic-release -d --branches develop
+          npx semantic-release -d --branches develop | grep -oP 'Published release \K.*? ' >> .next-version
           echo "AARD_NEXT_VERSION=$(cat .next-version)" >> $GITHUB_ENV
           rm .next-version
 
