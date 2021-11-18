@@ -7,11 +7,8 @@
   "scripts": {
     "dev": "NODE_ENV=development ts-node-dev --project tsconfig.server.json src/server/server.ts",
     "gen-prod-env": "ts-node --project tsconfig.server.json scripts/prebuild.ts",
-    "build": "pnpm gen-prod-env && vite build && tsc --project tsconfig.server.json",
-    "build:full": "pnpm build && npx pkg . && pnpm bundle && pnpm clean",
-    "bundle": "mkdir bundle && pnpm copy-bundle-binaries && cd bundle && mv ../aard . && mv ../dist/index.html . && mv ../dist/assets . && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
-    "copy-bundle-binaries": "cd bundle && mkdir lib && cp ../node_modules/.pnpm/@prisma+engine-core@3.5.0/node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../node_modules/prisma/libquery_engine-debian-openssl-1.1.x.so.node lib",
-    "clean": "rm -rf dist && rm .env",
+    "build": "yarn gen-prod-env && vite build && tsc --project tsconfig.server.json && npx pkg . && yarn bundle && rm .env",
+    "bundle": "mkdir bundle && cd bundle && mv ../aard . && mv ../dist/index.html . && mv ../dist/assets . && mkdir lib && cp ../node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../node_modules/esbuild-linux-64/bin/esbuild lib && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma && cd ..",
     "serve": "vite preview",
     "p:generate": "dotenv -c development -- npx prisma generate",
     "p:migrate": "dotenv -c development -- npx prisma migrate dev --name init",
@@ -19,7 +16,7 @@
     "p:seed": "dotenv -c development -- npx prisma db seed",
     "p:studio": "dotenv -c development -- npx prisma studio",
     "relay": "relay-compiler --src ./src/client --schema ./schema.graphql --language typescript",
-    "postinstall": "pnpm p:generate"
+    "postinstall": "yarn p:generate"
   },
   "dependencies": {
     "@ctrl/video-filename-parser": "3.x",
@@ -36,7 +33,6 @@
     "express": "^4.17.1",
     "fs-extra": "^10.0.0",
     "graphql": "15.x",
-    "history": "4.x",
     "klaw": "^4.0.1",
     "nexus": "^1.1.0",
     "nexus-prisma": "^0.34.0",
