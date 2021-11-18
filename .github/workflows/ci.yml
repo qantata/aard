@@ -25,6 +25,14 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Load next version into an environment variable
+        run: |
+          npx semantic-release -d | grep -oP 'Published release \K.*? ' >> .next-version
+          export AARD_NEXT_VERSION=`cat .next-version`
+          rm .next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
         run: yarn build
 
