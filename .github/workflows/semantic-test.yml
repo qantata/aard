@@ -17,15 +17,17 @@ jobs:
         with:
           node-version: 16
 
-      - run: yarn install
+      - name: Install deps
+        run: yarn install
 
       - name: Load next version into an environment variable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          npx semantic-release -d
           npx semantic-release -d | grep -oP 'Published release \K.*? ' >> .next-version
           echo "AARD_NEXT_VERSION=$(cat .next-version)" >> $GITHUB_ENV
           rm .next-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Echo version
         run: |
