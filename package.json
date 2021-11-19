@@ -14,7 +14,7 @@
     "bundle": "mkdir bundle && yarn copy-bundle-binaries && cd bundle && mv ../aard . && mv ../dist/index.html . && mv ../dist/assets . && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
     "copy-bundle-binaries": "cd bundle && mkdir lib && cp ../node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../node_modules/esbuild-linux-64/bin/esbuild lib",
     "clean": "rm -rf dist && rm .env",
-    "tar": "cd bundle && tar -czvf ../aard-linux-x64.tar.gz *",
+    "tar": "cd bundle && tar -czvf ../aard-linux-x64-$AARD_NEXT_VERSION.tar.gz *",
     "serve": "vite preview",
     "p:generate": "dotenv -c development -- npx prisma generate",
     "p:migrate": "dotenv -c development -- npx prisma migrate dev --name init",
