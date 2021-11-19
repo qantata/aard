@@ -115,7 +115,7 @@ const createServer = async () => {
 
   await vite.listen(VITE_PORT);
   app.listen(EXPRESS_PORT, () => {
-    console.log(`> Aard version ${VERSION} ready at http://localhost:${VITE_PORT}`);
+    console.log(`> Aard version ${VERSION()} ready at http://localhost:${VITE_PORT}`);
 
     if (DEV) {
       console.log(`> Queries ready at http://localhost:${EXPRESS_PORT}${server.graphqlPath}`);

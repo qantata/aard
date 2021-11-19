@@ -25,7 +25,7 @@ jobs:
       - name: Load next version into an environment variable
         run: |
           npx semantic-release -d | grep -oP 'Published release \K.*? ' >> .next-version
-          echo "AARD_NEXT_VERSION=$(cat .next-version)" >> $GITHUB_ENV
+          echo "AARD_NEXT_VERSION=$(cat .next-version | xargs)" >> $GITHUB_ENV
           rm .next-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -6,6 +6,10 @@
 
 - The app version is now printed to the console when it's started
 
+### Other
+
+- The release file name now includes the app version
+
 ## [[1.0.0-alpha.1]](https://github.com/qantata/aard/releases/tag/v1.0.0-alpha.1) 2021-11-18
 
 ### Features & Changes

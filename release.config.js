@@ -1,4 +1,4 @@
-{
+module.exports = {
   "plugins":
     [
       ["@semantic-release/commit-analyzer", {
@@ -15,7 +15,7 @@
       }],
       ["@semantic-release/github", {
         "assets": [
-          {"path": "aard-linux-x64.tar.gz"}
+          {"path": `aard-linux-x64-${process.env.AARD_NEXT_VERSION}.tar.gz`}
         ]
       }]
     ]
