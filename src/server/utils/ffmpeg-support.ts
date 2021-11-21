@@ -20,6 +20,7 @@ let cachedDecoders: Coders | null = null;
 let cachedEncoders: Coders | null = null;
 let cachedDemuxers: Muxers | null = null;
 let cachedMuxers: Muxers | null = null;
+let cachedDemuxerFileExtensions: string[] | null = null;
 
 const getCodersFromFfmpegOutput = (output: string[]) => {
   const coders: Coders = {
@@ -170,4 +171,63 @@ export const getMuxers = async (): Promise<Muxers | null> => {
     console.error(err);
     return null;
   }
+};
+
+export const getDemuxerFileExtensions = async (): Promise<string[] | null> => {
+  if (cachedDemuxerFileExtensions !== null) {
+    return cachedDemuxerFileExtensions;
+  }
+
+  try {
+    const demuxers = await getDemuxers();
+    if (!demuxers) {
+      return null;
+    }
+
+    let extensions: string[] = [];
+    for (let [demuxer, _] of Object.entries(demuxers)) {
+      try {
+        const result = await ffmpeg(["-h", `demuxer=${demuxer}`]);
+        const commonExtensionsStr = "Common extensions: ";
+        const commonExtensionsStrIndex = result.indexOf(commonExtensionsStr);
+
+        if (commonExtensionsStrIndex === -1) {
+          continue;
+        }
+
+        // Find start and end index for extension list
+        const startIdx = commonExtensionsStrIndex + commonExtensionsStr.length;
+        let endIdx = startIdx;
+        for (let idx = startIdx; idx < result.length; idx++) {
+          if (result[idx] === ".") {
+            endIdx = idx;
+            break;
+          }
+        }
+
+        extensions = [...extensions, ...result.substring(startIdx, endIdx).split(",")];
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    return extensions;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
+export const setFfmpegSupportValues = (
+  decoders: Coders,
+  encoders: Coders,
+  demuxers: Muxers,
+  muxers: Muxers,
+  extensions: string[]
+) => {
+  cachedDecoders = decoders;
+  cachedEncoders = encoders;
+  cachedDemuxers = demuxers;
+  cachedMuxers = muxers;
+  cachedDemuxerFileExtensions = extensions;
 };

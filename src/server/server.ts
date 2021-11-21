@@ -19,9 +19,11 @@ import { schema } from "./schema/schema";
 import { applyPrismaMiddleware } from "./middleware";
 import { DEV, VERSION } from "./utils/constants";
 import { migrateDb } from "./utils/migrate-db";
+import { updateFfmpegCache } from "./utils/ffmpeg-cache";
 
 const createServer = async () => {
   applyPrismaMiddleware();
+  await updateFfmpegCache();
 
   if (!DEV) {
     await migrateDb();
