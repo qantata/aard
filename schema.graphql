@@ -2,6 +2,12 @@
 ### Do not make changes to this file directly
 
 
+input ClientStreamProfileInput {
+  audioCodecs: ProfileAudioCodecsInput!
+  containers: ProfileContainersInput!
+  videoCodecs: ProfileVideoCodecsInput!
+}
+
 type Library {
   id: ID!
   root: String!
@@ -16,8 +22,31 @@ type Movie {
 
 type Mutation {
   createLibrary(root: String!): Library
-  createVideoStreamSession(entryId: String!): VideoStreamSession
+  createVideoStreamSession(entryId: String!, profile: ClientStreamProfileInput!): VideoStreamSession
   deleteLibrary(id: String!): Library
+}
+
+input ProfileAudioCodecsInput {
+  aac: Boolean
+  ac3: Boolean
+  flac: Boolean
+  mp3: Boolean
+}
+
+input ProfileContainersInput {
+  mkv: Boolean
+  mp4: Boolean
+  ts: Boolean
+  webm: Boolean
+}
+
+input ProfileH264Input {
+  level: Int!
+  profile: String!
+}
+
+input ProfileVideoCodecsInput {
+  h264: ProfileH264Input
 }
 
 type Query {

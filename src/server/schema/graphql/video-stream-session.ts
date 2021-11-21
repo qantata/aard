@@ -1,4 +1,4 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, nonNull, objectType, stringArg } from "nexus";
 
 import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
 
@@ -23,13 +23,66 @@ export const QueryVideoStreamSessions = extendType({
   },
 });
 
+const ProfileContainersInput = inputObjectType({
+  name: "ProfileContainersInput",
+  definition(t) {
+    t.nullable.boolean("mp4");
+    t.nullable.boolean("mkv");
+    t.nullable.boolean("webm");
+    t.nullable.boolean("ts");
+  },
+});
+
+const ProfileH264Input = inputObjectType({
+  name: "ProfileH264Input",
+  definition(t) {
+    t.nonNull.int("level");
+    t.nonNull.string("profile");
+  },
+});
+
+const ProfileVideoCodecsInput = inputObjectType({
+  name: "ProfileVideoCodecsInput",
+  definition(t) {
+    t.nullable.field("h264", {
+      type: ProfileH264Input,
+    });
+  },
+});
+
+const ProfileAudioCodecsInput = inputObjectType({
+  name: "ProfileAudioCodecsInput",
+  definition(t) {
+    t.nullable.boolean("flac");
+    t.nullable.boolean("aac");
+    t.nullable.boolean("ac3");
+    t.nullable.boolean("mp3");
+  },
+});
+
+const ClientStreamProfileInput = inputObjectType({
+  name: "ClientStreamProfileInput",
+  definition(t) {
+    t.field("containers", {
+      type: ProfileContainersInput,
+    });
+    t.field("videoCodecs", {
+      type: ProfileVideoCodecsInput,
+    });
+    t.field("audioCodecs", {
+      type: ProfileAudioCodecsInput,
+    });
+  },
+});
+
 export const MutationCreateVideoStreamSession = extendType({
   type: "Mutation",
   definition(t) {
     t.nullable.field("createVideoStreamSession", {
       type: PVideoStreamSession.$name,
       args: {
-        entryId: nonNull(stringArg()),
+        entryId: stringArg(),
+        profile: ClientStreamProfileInput.asArg(),
       },
       async resolve(_root, args, ctx) {
         // TODO: For now we only have movies but update this if more video types are added
@@ -42,6 +95,7 @@ export const MutationCreateVideoStreamSession = extendType({
           },
         });
 
+        // TODO: Error handling
         if (!entry) {
           return null;
         }
