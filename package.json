@@ -5,7 +5,7 @@
   "bin": "dist/server.js",
   "license": "AGPL-3.0",
   "scripts": {
-    "dev": "NODE_ENV=development ts-node-dev --project tsconfig.server.json src/server/server.ts",
+    "dev": "NODE_ENV=development ts-node-dev --transpile-only --project tsconfig.server.json src/server/server.ts",
     "gen-prod-env": "AARD_NEXT_VERSION=$AARD_NEXT_VERSION ts-node --project tsconfig.server.json scripts/prebuild.ts",
     "fix-nexus-prisma": "ts-node --project tsconfig.server.json scripts/fix-nexus-prisma.ts",
     "build": "yarn gen-prod-env && yarn fix-nexus-prisma && vite build && tsc --project tsconfig.server.json",
