@@ -58,12 +58,15 @@ const createServer = async () => {
       where: {
         id: req.params.id,
       },
+      include: {
+        file: true,
+      },
     });
 
     if (!movie) {
       res.status(404).send();
     } else {
-      res.sendFile(movie.filepath);
+      res.sendFile(movie.file.path);
     }
   });
 
@@ -73,18 +76,22 @@ const createServer = async () => {
       where: {
         id: req.params.id,
       },
+      include: {
+        file: true,
+      },
     });
 
     if (!movie) {
       res.status(404).send();
     } else {
       // TODO: Improve this lol
-      const b = path.basename(movie.filepath);
+      let filepath = movie.file.path;
+      const b = path.basename(filepath);
       const possibilities = [
-        movie.filepath.replace(".mp4", ".jpg"),
-        movie.filepath.replace(b, b.toLocaleLowerCase().replace(".mp4", ".jpg")),
-        movie.filepath.replace(b, "Cover.jpg"),
-        movie.filepath.replace(b, "cover.jpg"),
+        filepath.replace(".mp4", ".jpg"),
+        filepath.replace(b, b.toLocaleLowerCase().replace(".mp4", ".jpg")),
+        filepath.replace(b, "Cover.jpg"),
+        filepath.replace(b, "cover.jpg"),
       ];
 
       for (const p of possibilities) {

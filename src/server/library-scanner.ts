@@ -53,10 +53,15 @@ const createNewMovies = async (items: string[], libraryId: string) => {
         id: String(Math.random() * 100000),
         title: data.title,
         year: data.year ? parseInt(data.year) : null,
-        filepath: item,
         library: {
           connect: {
             id: libraryId,
+          },
+        },
+        file: {
+          create: {
+            id: `video-file${Math.random() * 100000}`,
+            path: item,
           },
         },
       },

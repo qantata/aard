@@ -8,17 +8,30 @@ type Library {
 }
 
 type Movie {
-  filepath: String!
+  file: VideoFile!
   id: ID!
+  library: Library!
   title: String!
 }
 
 type Mutation {
   createLibrary(root: String!): Library
+  createVideoStreamSession(entryId: String!): VideoStreamSession
   deleteLibrary(id: String!): Library
 }
 
 type Query {
   libraries: [Library!]!
   movies: [Movie!]!
+  videoStreamSessions: [VideoStreamSession!]!
+}
+
+type VideoFile {
+  id: ID!
+  path: String!
+}
+
+type VideoStreamSession {
+  file: VideoFile!
+  id: ID!
 }
