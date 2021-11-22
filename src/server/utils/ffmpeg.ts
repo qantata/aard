@@ -35,11 +35,33 @@ const ffspawn = async (cmd: "ffmpeg" | "ffprobe", filepath: string | null, args:
   });
 };
 
+// TODO: Fully type this
+export type FFProbeOutputType = {
+  streams?: {
+    codec_name?: string;
+    profile?: string;
+    codec_type?: string;
+    width?: number;
+    height?: number;
+    level?: number;
+    channels?: number;
+    duration?: string;
+    bits_per_raw_sample?: string;
+  }[];
+  format?: {
+    format_name?: string;
+    duration?: string;
+  };
+};
+
 export const ffprobe = async (filepath: string) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<FFProbeOutputType>(async (resolve, reject) => {
     try {
       const result = await ffspawn("ffprobe", filepath, ["-show_format", "-show_streams", "-print_format", "json"]);
-      resolve(result);
+
+      if (typeof result === "object") {
+        resolve(result);
+      }
     } catch (err) {
       reject(err);
     }

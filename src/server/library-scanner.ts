@@ -6,6 +6,9 @@ import { filenameParse } from "@ctrl/video-filename-parser";
 
 import { context } from "./context";
 import { isDirectory } from "./utils/filesystem";
+import { ffprobe, FFProbeOutputType } from "./utils/ffmpeg";
+import { getDemuxerFileExtensions } from "./utils/ffmpeg-support";
+import { transformAndValidateFfprobeOutput, VideoProbeResultType } from "./utils/ffprobe-transformer";
 
 // TODO: Handle errors better
 export const scanNewLibrary = async (id: string, root: string) => {
@@ -17,9 +20,20 @@ export const scanNewLibrary = async (id: string, root: string) => {
     return;
   }
 
+  const demuxerExtensions = await getDemuxerFileExtensions();
   const videoFileFilter = through2.obj(function (item, _enc, next) {
-    // Temporarily only accept mp4 files until transcoding is added
-    if (item.path.endsWith(".mp4")) this.push(item);
+    // Some extensions that aren't in the ffmpeg list for some reason
+    const extraExtensions = ["mp4", "mov", "ts", "m2ts"];
+    const ffmpegExtensions = demuxerExtensions ? demuxerExtensions : [];
+    const extensions = [...ffmpegExtensions, ...extraExtensions];
+
+    for (const ext of extensions) {
+      if (item.path.endsWith(`.${ext}`)) {
+        this.push(item);
+        break;
+      }
+    }
+
     next();
   });
 
@@ -33,38 +47,59 @@ export const scanNewLibrary = async (id: string, root: string) => {
     return fs.existsSync(item);
   };
 
-  const items: string[] = [];
   klaw(root, {
     preserveSymlinks: false,
     filter,
   })
     .pipe(videoFileFilter)
-    .on("data", (item) => items.push(item.path))
-    .on("error", (err: Error, _item: any) => console.error(err))
-    .on("end", () => createNewMovies(items, id));
+    .on("data", async (item) => {
+      try {
+        const rawProbeData = await ffprobe(item.path);
+        console.log("Raw:", rawProbeData);
+        const probeData = await transformAndValidateFfprobeOutput(rawProbeData);
+
+        createScannedMovie(id, item.path, rawProbeData, probeData);
+      } catch (err) {
+        // File isn't compatible with ffmpeg or something else went wrong
+        console.error(err);
+      }
+    })
+    .on("error", (err: Error, item: any) => {
+      console.error(err);
+      console.error("This error occured with the following item:", item);
+    })
+    .on("end", () => {
+      console.log(`Finished scanning library ${root}`);
+    });
 };
 
-const createNewMovies = async (items: string[], libraryId: string) => {
-  for (const item of items) {
-    const data = filenameParse(path.basename(item, ".mp4"));
+const createScannedMovie = async (
+  libraryId: string,
+  filepath: string,
+  rawProbeData: FFProbeOutputType,
+  probeData: VideoProbeResultType
+) => {
+  const parseData = filenameParse(path.basename(filepath, path.extname(filepath)));
 
-    await context().prisma.movie.create({
-      data: {
-        id: String(Math.random() * 100000),
-        title: data.title,
-        year: data.year ? parseInt(data.year) : null,
-        library: {
-          connect: {
-            id: libraryId,
-          },
-        },
-        file: {
-          create: {
-            id: `video-file${Math.random() * 100000}`,
-            path: item,
-          },
+  await context().prisma.movie.create({
+    data: {
+      id: String(Math.random() * 100000),
+      title: parseData.title,
+      year: parseData.year ? parseInt(parseData.year) : null,
+      library: {
+        connect: {
+          id: libraryId,
         },
       },
-    });
-  }
+      file: {
+        create: {
+          id: `video-file${Math.random() * 100000}`,
+          path: filepath,
+          // TODO: Let's not do this :)
+          rawProbeData: JSON.stringify(rawProbeData),
+          probeData: JSON.stringify(probeData),
+        },
+      },
+    },
+  });
 };

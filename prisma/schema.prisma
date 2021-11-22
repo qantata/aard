@@ -31,6 +31,8 @@ model Movie {
 model VideoFile {
   id             String               @id
   path           String
+  rawProbeData   String
+  probeData      String
   movie          Movie?
   streamSessions VideoStreamSession[]
 }
