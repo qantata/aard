@@ -1,13 +1,14 @@
-import { extendType, inputObjectType, nonNull, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, objectType, stringArg } from "nexus";
 
-import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
+import { VideoStreamSession as PVideoStreamSession, VideoStreamProfile } from "nexus-prisma";
+import { parseProbeDataString } from "../../utils/ffprobe-transformer";
 
 export const VideoStreamSession = objectType({
-  name: PVideoStreamSession.$name,
-  description: PVideoStreamSession.$description,
+  name: "VideoStreamSession",
   definition(t) {
     t.field(PVideoStreamSession.id);
     t.field(PVideoStreamSession.file);
+    t.field(PVideoStreamSession.clients);
   },
 });
 
@@ -17,7 +18,12 @@ export const QueryVideoStreamSessions = extendType({
     t.list.field("videoStreamSessions", {
       type: PVideoStreamSession.$name,
       async resolve(_root, _args, ctx) {
-        return await ctx.prisma.videoStreamSession.findMany();
+        return await ctx.prisma.videoStreamSession.findMany({
+          include: {
+            file: true,
+            clients: true,
+          },
+        });
       },
     });
   },
@@ -75,6 +81,24 @@ const ClientStreamProfileInput = inputObjectType({
   },
 });
 
+export const MutationDeleteVideoStreamSessions = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("deleteVideoStreamSessions", {
+      type: "Boolean",
+      async resolve(_root, _args, ctx) {
+        try {
+          await ctx.prisma.videoStreamSession.deleteMany();
+          return true;
+        } catch (err) {
+          console.error(err);
+          return false;
+        }
+      },
+    });
+  },
+});
+
 export const MutationCreateVideoStreamSession = extendType({
   type: "Mutation",
   definition(t) {
@@ -100,12 +124,85 @@ export const MutationCreateVideoStreamSession = extendType({
           return null;
         }
 
+        const probeData = parseProbeDataString(entry.file.probeData);
+        let isContainerCompatible = false;
+        let isVideoCodecCompatible = false;
+        let isAudioCodecCompatible = false;
+
+        // @ts-ignore TODO: Try to make these TS safe
+        if (args.profile.containers[probeData.container]) {
+          isContainerCompatible = true;
+        }
+
+        // @ts-ignore
+        if (args.profile.videoCodecs[probeData.videoStreams[0].codec]) {
+          isVideoCodecCompatible = true;
+        }
+
+        // @ts-ignore
+        if (probeData.audioStreams.length === 0 || args.profile.audioCodecs[probeData.audioStreams[0].codec]) {
+          isAudioCodecCompatible = true;
+        }
+
         const session = await ctx.prisma.videoStreamSession.create({
           data: {
             id: `video-stream-session${Math.random() * 1000000}`,
             file: {
               connect: {
                 id: entry.file.id,
+              },
+            },
+          },
+        });
+
+        const client = await ctx.prisma.videoStreamSessionClient.create({
+          data: {
+            id: `client${Math.random() * 1000000}`,
+            isOwner: true,
+            videoStreamSession: {
+              connect: {
+                id: session.id,
+              },
+            },
+          },
+        });
+
+        // Direct play
+        if (isContainerCompatible && isVideoCodecCompatible && isAudioCodecCompatible) {
+          await ctx.prisma.videoStreamProfile.create({
+            data: {
+              id: `profile${Math.random() * 1000000}`,
+              isHls: false,
+              width: probeData.videoStreams[0].width,
+              height: probeData.videoStreams[0].height,
+              container: probeData.container,
+              videoCodec: probeData.videoStreams[0].codec,
+              videoBitrate: 0, // TODO
+              audioCodec: probeData.audioStreams.length ? probeData.audioStreams[0].codec : undefined,
+              audioBitrate: 0,
+              client: {
+                connect: {
+                  id: client.id,
+                },
+              },
+            },
+          });
+        }
+
+        // Transcode
+        await ctx.prisma.videoStreamProfile.create({
+          data: {
+            id: `profile${Math.random() * 1000000}`,
+            isHls: true,
+            width: probeData.videoStreams[0].width,
+            height: probeData.videoStreams[0].height,
+            videoCodec: "h264",
+            videoBitrate: 0, // TODO
+            audioCodec: probeData.audioStreams.length ? "aac" : undefined,
+            audioBitrate: 0,
+            client: {
+              connect: {
+                id: client.id,
               },
             },
           },

@@ -24,6 +24,7 @@ type Mutation {
   createLibrary(root: String!): Library
   createVideoStreamSession(entryId: String!, profile: ClientStreamProfileInput!): VideoStreamSession
   deleteLibrary(id: String!): Library
+  deleteVideoStreamSessions: Boolean!
 }
 
 input ProfileAudioCodecsInput {
@@ -52,6 +53,8 @@ input ProfileVideoCodecsInput {
 type Query {
   libraries: [Library!]!
   movies: [Movie!]!
+  videoStreamProfiles: [VideoStreamProfile!]!
+  videoStreamSessionClients: [VideoStreamSessionClient!]!
   videoStreamSessions: [VideoStreamSession!]!
 }
 
@@ -60,7 +63,28 @@ type VideoFile {
   path: String!
 }
 
+type VideoStreamProfile {
+  audioBitrate: Int
+  audioCodec: String
+  client: VideoStreamSessionClient!
+  container: String
+  height: Int!
+  id: ID!
+  isHls: Boolean!
+  videoBitrate: Int!
+  videoCodec: String!
+  width: Int!
+}
+
 type VideoStreamSession {
+  clients: [VideoStreamSessionClient!]!
   file: VideoFile!
   id: ID!
+}
+
+type VideoStreamSessionClient {
+  id: ID!
+  isOwner: Boolean!
+  profiles: [VideoStreamProfile!]!
+  videoStreamSession: VideoStreamSession!
 }

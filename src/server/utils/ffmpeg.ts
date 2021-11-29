@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 
 const ffspawn = async (cmd: "ffmpeg" | "ffprobe", filepath: string | null, args: string[]) => {
-  return new Promise<string | Object>((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     const processArgs = ["-hide_banner", "-loglevel", "fatal", ...args];
     if (filepath) {
       processArgs.push(filepath);
@@ -22,22 +22,14 @@ const ffspawn = async (cmd: "ffmpeg" | "ffprobe", filepath: string | null, args:
     process.on("exit", (code) => {});
     process.on("error", (err) => reject(err));
     process.on("close", () => {
-      const data = stdoutData.join("");
-      const formatIndex = args.indexOf("-print_format");
-
-      // JSON format
-      if (formatIndex !== -1 && args.length >= formatIndex + 2 && args[formatIndex + 1] === "json") {
-        resolve(JSON.parse(data));
-      } else {
-        resolve(data);
-      }
+      resolve(stdoutData.join(""));
     });
   });
 };
 
 // TODO: Fully type this
 export type FFProbeOutputType = {
-  streams?: {
+  streams: {
     codec_name?: string;
     profile?: string;
     codec_type?: string;
@@ -47,6 +39,8 @@ export type FFProbeOutputType = {
     channels?: number;
     duration?: string;
     bits_per_raw_sample?: string;
+    r_frame_rate?: string;
+    avg_frame_rate?: string;
   }[];
   format?: {
     format_name?: string;
@@ -59,9 +53,7 @@ export const ffprobe = async (filepath: string) => {
     try {
       const result = await ffspawn("ffprobe", filepath, ["-show_format", "-show_streams", "-print_format", "json"]);
 
-      if (typeof result === "object") {
-        resolve(result);
-      }
+      resolve(JSON.parse(result));
     } catch (err) {
       reject(err);
     }

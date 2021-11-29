@@ -13,8 +13,9 @@ generator nexusPrisma {
 }
 
 model Library {
-  id     String  @id
-  root   String
+  id   String @id
+  root String
+
   movies Movie[]
 }
 
@@ -29,16 +30,43 @@ model Movie {
 }
 
 model VideoFile {
-  id             String               @id
-  path           String
-  rawProbeData   String
-  probeData      String
-  movie          Movie?
+  id           String @id
+  path         String
+  rawProbeData String
+  probeData    String
+  movie        Movie?
+
   streamSessions VideoStreamSession[]
+}
+
+model VideoStreamProfile {
+  id           String  @id
+  isHls        Boolean
+  width        Int
+  height       Int
+  container    String?
+  videoCodec   String
+  videoBitrate Int
+  audioCodec   String?
+  audioBitrate Int?
+
+  client   VideoStreamSessionClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+}
+
+model VideoStreamSessionClient {
+  id                   String             @id
+  isOwner              Boolean
+  videoStreamSession   VideoStreamSession @relation(fields: [videoStreamSessionId], references: [id], onDelete: Cascade)
+  videoStreamSessionId String
+
+  profiles VideoStreamProfile[]
 }
 
 model VideoStreamSession {
   id     String    @id
   file   VideoFile @relation(fields: [fileId], references: [id])
   fileId String
+
+  clients VideoStreamSessionClient[]
 }
