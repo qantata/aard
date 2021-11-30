@@ -22,13 +22,15 @@ export type VideoProbeResultType = {
     level?: number;
     duration?: number;
     bitsPerSample?: number;
-    fps: number;
+    bitRate: number;
+    fps?: number;
   }[];
   audioStreams: {
     codec: string;
     profile?: string;
     channels?: number;
     duration?: number;
+    bitRate: number;
   }[];
   // TODO: Add subtitles
 };
@@ -38,7 +40,7 @@ export type VideoProbeResultType = {
 const parseFpsFromStream = (stream: FFProbeOutputType["streams"][number]) => {
   const fpsStr = stream.r_frame_rate || stream.avg_frame_rate;
   if (!fpsStr) {
-    throw new Error("Stream frame rate is not present");
+    throw new Error("Stream has no FPS information");
   }
 
   const [nom, denom] = fpsStr.split("/");
@@ -47,7 +49,7 @@ const parseFpsFromStream = (stream: FFProbeOutputType["streams"][number]) => {
   }
 
   const nomNumber = parseInt(nom);
-  const denomNumber = parseInt(nom);
+  const denomNumber = parseInt(denom);
 
   if (isNaN(nomNumber) || isNaN(denomNumber) || nomNumber <= 0 || denomNumber <= 0) {
     throw new Error("Stream frame rate values are invalid");
@@ -83,59 +85,69 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
     throw new Error("There are no available decoders");
   }
 
-  // Get streams
-  const audioStreams = output.streams.filter((s) => {
-    return s.codec_type === "audio" && s.codec_name && decoders.audio[s.codec_name];
+  const videoStreams: VideoProbeResultType["videoStreams"] = output.streams.flatMap((s) => {
+    if (
+      s.codec_type !== "video" ||
+      !s.codec_name ||
+      !s.width ||
+      !s.height ||
+      !s.bit_rate ||
+      !decoders.video[s.codec_name]
+    ) {
+      return [];
+    }
+
+    let fps: number | undefined;
+    try {
+      fps = parseFpsFromStream(s);
+    } catch (err) {
+      console.error(err);
+    }
+
+    return {
+      codec: s.codec_name!,
+      profile: s.profile,
+      width: s.width,
+      height: s.height,
+      level: s.level,
+      bitRate: parseFloat(s.bit_rate),
+      fps,
+      duration: s.duration ? parseFloat(s.duration) : undefined,
+      bitsPerSample: s.bits_per_raw_sample ? parseInt(s.bits_per_raw_sample) : undefined,
+    };
   });
-  const subtitleStreams = output.streams.filter((s) => {
-    return s.codec_type === "subtitle" && s.codec_name && decoders.subtitle[s.codec_name];
+
+  if (!videoStreams.length) {
+    throw new Error("No valid video streams for file");
+  }
+
+  const audioStreams: VideoProbeResultType["audioStreams"] = output.streams.flatMap((s) => {
+    if (
+      s.codec_type !== "audio" ||
+      !s.codec_name ||
+      !decoders.audio[s.codec_name] ||
+      !s.bit_rate ||
+      s.bit_rate === "0"
+    ) {
+      return [];
+    }
+
+    return {
+      codec: s.codec_name!,
+      profile: s.profile,
+      channels: s.channels,
+      bitRate: parseFloat(s.bit_rate),
+      duration: s.duration ? parseFloat(s.duration) : undefined,
+    };
   });
 
   const result: VideoProbeResultType = {
     container,
     containerDuration: output.format.duration ? parseFloat(output.format.duration) : undefined,
-    videoStreams: output.streams.flatMap((s) => {
-      if (
-        s.codec_type !== "video" ||
-        !s.codec_name ||
-        !s.width ||
-        !s.height ||
-        decoders.video[s.codec_name] === undefined
-      ) {
-        return [];
-      }
-
-      let fps: number;
-      try {
-        fps = parseFpsFromStream(s);
-      } catch (err) {
-        console.error(err);
-        return [];
-      }
-
-      return {
-        codec: s.codec_name!,
-        profile: s.profile,
-        width: s.width,
-        height: s.height,
-        level: s.level,
-        fps,
-        duration: s.duration ? parseFloat(s.duration) : undefined,
-        bitsPerSample: s.bits_per_raw_sample ? parseInt(s.bits_per_raw_sample) : undefined,
-      };
-    }),
-    audioStreams: audioStreams.map((s) => ({
-      codec: s.codec_name!,
-      profile: s.profile,
-      channels: s.channels,
-      duration: s.duration ? parseFloat(s.duration) : undefined,
-    })),
+    videoStreams,
+    audioStreams,
     // TODO: Add subtitles
   };
-
-  if (!result.videoStreams.length) {
-    throw new Error("No valid video streams for file");
-  }
 
   return result;
 };

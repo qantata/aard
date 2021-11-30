@@ -61,14 +61,14 @@ const createServer = async () => {
         id: req.params.id,
       },
       include: {
-        file: true,
+        files: true,
       },
     });
 
     if (!movie) {
       res.status(404).send();
     } else {
-      res.sendFile(movie.file.path);
+      res.sendFile(movie.files[0].path);
     }
   });
 
@@ -79,7 +79,7 @@ const createServer = async () => {
         id: req.params.id,
       },
       include: {
-        file: true,
+        files: true,
       },
     });
 
@@ -87,7 +87,7 @@ const createServer = async () => {
       res.status(404).send();
     } else {
       // TODO: Improve this lol
-      let filepath = movie.file.path;
+      let filepath = movie.files[0].path;
       const b = path.basename(filepath);
       const possibilities = [
         filepath.replace(".mp4", ".jpg"),
@@ -130,6 +130,8 @@ const createServer = async () => {
       console.log(`> Queries ready at http://localhost:${EXPRESS_PORT}${server.graphqlPath}`);
       console.log(`> Subscriptions ready at ws://localhost:${EXPRESS_PORT}${server.graphqlPath}`);
     }
+
+    console.log();
   });
 };
 

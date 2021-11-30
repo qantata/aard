@@ -9,7 +9,7 @@ export const Movie = objectType({
     t.field(PMovie.id);
     t.field(PMovie.title);
     t.field(PMovie.library);
-    t.field(PMovie.file);
+    t.field(PMovie.files);
   },
 });
 

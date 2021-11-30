@@ -6,7 +6,7 @@ import { filenameParse } from "@ctrl/video-filename-parser";
 
 import { context } from "./context";
 import { isDirectory } from "./utils/filesystem";
-import { ffprobe, FFProbeOutputType } from "./utils/ffmpeg";
+import { ffprobe, FFProbeOutputType, probeFileData, probeFileVideoBitrate } from "./utils/ffmpeg";
 import { getDemuxerFileExtensions } from "./utils/ffmpeg-support";
 import { transformAndValidateFfprobeOutput, VideoProbeResultType } from "./utils/ffprobe-transformer";
 
@@ -54,8 +54,16 @@ export const scanNewLibrary = async (id: string, root: string) => {
     .pipe(videoFileFilter)
     .on("data", async (item) => {
       try {
-        const rawProbeData = await ffprobe(item.path);
-        console.log("Raw:", rawProbeData);
+        const rawProbeData = await probeFileData(item.path);
+
+        // For streams that don't have the bit_rate value, we need to probe it manually
+        for (const [index, stream] of rawProbeData.streams.entries()) {
+          if ((stream.codec_type === "video" || stream.codec_type === "audio") && !stream.bit_rate) {
+            const bitRate = await probeFileVideoBitrate(item.path, index, rawProbeData.format?.duration);
+            rawProbeData.streams[index].bit_rate = `${bitRate}`;
+          }
+        }
+
         const probeData = await transformAndValidateFfprobeOutput(rawProbeData);
 
         createScannedMovie(id, item.path, rawProbeData, probeData);
@@ -69,7 +77,7 @@ export const scanNewLibrary = async (id: string, root: string) => {
       console.error("This error occured with the following item:", item);
     })
     .on("end", () => {
-      console.log(`Finished scanning library ${root}`);
+      console.log(`Finished scanning library ${root}\n`);
     });
 };
 
@@ -91,7 +99,7 @@ const createScannedMovie = async (
           id: libraryId,
         },
       },
-      file: {
+      files: {
         create: {
           id: `video-file${Math.random() * 100000}`,
           path: filepath,

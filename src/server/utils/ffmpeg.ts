@@ -41,6 +41,7 @@ export type FFProbeOutputType = {
     bits_per_raw_sample?: string;
     r_frame_rate?: string;
     avg_frame_rate?: string;
+    bit_rate?: string;
   }[];
   format?: {
     format_name?: string;
@@ -48,12 +49,12 @@ export type FFProbeOutputType = {
   };
 };
 
-export const ffprobe = async (filepath: string) => {
-  return new Promise<FFProbeOutputType>(async (resolve, reject) => {
+export const ffprobe = async (filepath: string, args?: string[]) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
-      const result = await ffspawn("ffprobe", filepath, ["-show_format", "-show_streams", "-print_format", "json"]);
+      const result = await ffspawn("ffprobe", filepath, args || []);
 
-      resolve(JSON.parse(result));
+      resolve(result);
     } catch (err) {
       reject(err);
     }
@@ -74,4 +75,56 @@ export const ffmpeg = async (args: string[]) => {
       reject(err);
     }
   });
+};
+
+export const probeFileData = async (filepath: string): Promise<FFProbeOutputType> => {
+  const result = await ffprobe(filepath, ["-show_format", "-show_streams", "-print_format", "json"]);
+  return JSON.parse(result);
+};
+
+// Necessary when a video file's stream is missing the bit_rate value
+export const probeFileVideoBitrate = async (
+  filepath: string,
+  streamIndex: number,
+  formatDuration?: string
+): Promise<number> => {
+  const result = await ffprobe(filepath, [
+    "-select_streams",
+    `${streamIndex}`,
+    "-show_entries",
+    "packet=size:stream=duration",
+    "-of",
+    "compact=p=0:nk=1",
+  ]);
+
+  const lines = result.split("\n").filter((l) => l.length > 0);
+
+  // Each line is a packet size, last line is the duration as a float
+  let sum = 0;
+  let bitrate = 0;
+  for (const line of lines) {
+    if (line.indexOf(".") !== -1) {
+      const duration = parseFloat(line);
+
+      if (duration) {
+        bitrate = sum / duration;
+      }
+
+      break;
+    } else {
+      const value = parseInt(line);
+
+      if (!isNaN(value)) {
+        sum += value;
+      }
+    }
+  }
+
+  if (bitrate === 0 && sum > 0 && formatDuration) {
+    bitrate = sum / parseFloat(formatDuration);
+  }
+
+  // Packets are in bytes but the bit_rate value reported in
+  // "streams" when using ffprobe is in bits, so let's use bits
+  return Math.floor(bitrate * 8);
 };

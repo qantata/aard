@@ -115,7 +115,7 @@ export const MutationCreateVideoStreamSession = extendType({
             id: args.entryId,
           },
           include: {
-            file: true,
+            files: true,
           },
         });
 
@@ -124,7 +124,7 @@ export const MutationCreateVideoStreamSession = extendType({
           return null;
         }
 
-        const probeData = parseProbeDataString(entry.file.probeData);
+        const probeData = parseProbeDataString(entry.files[0].probeData);
         let isContainerCompatible = false;
         let isVideoCodecCompatible = false;
         let isAudioCodecCompatible = false;
@@ -149,7 +149,7 @@ export const MutationCreateVideoStreamSession = extendType({
             id: `video-stream-session${Math.random() * 1000000}`,
             file: {
               connect: {
-                id: entry.file.id,
+                id: entry.files[0].id,
               },
             },
           },
@@ -177,9 +177,9 @@ export const MutationCreateVideoStreamSession = extendType({
               height: probeData.videoStreams[0].height,
               container: probeData.container,
               videoCodec: probeData.videoStreams[0].codec,
-              videoBitrate: 0, // TODO
+              videoBitrate: probeData.videoStreams[0].bitRate,
               audioCodec: probeData.audioStreams.length ? probeData.audioStreams[0].codec : undefined,
-              audioBitrate: 0,
+              audioBitrate: probeData.audioStreams.length ? probeData.audioStreams[0].bitRate : undefined,
               client: {
                 connect: {
                   id: client.id,
@@ -197,9 +197,9 @@ export const MutationCreateVideoStreamSession = extendType({
             width: probeData.videoStreams[0].width,
             height: probeData.videoStreams[0].height,
             videoCodec: "h264",
-            videoBitrate: 0, // TODO
+            videoBitrate: probeData.videoStreams[0].bitRate,
             audioCodec: probeData.audioStreams.length ? "aac" : undefined,
-            audioBitrate: 0,
+            audioBitrate: probeData.audioStreams.length ? probeData.audioStreams[0].bitRate : undefined,
             client: {
               connect: {
                 id: client.id,
