@@ -1,7 +1,11 @@
-import { extendType, inputObjectType, nonNull, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, objectType, stringArg } from "nexus";
+import fse from "fs-extra";
+import path from "path";
 
 import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
 import { parseProbeDataString } from "../../utils/ffprobe-transformer";
+import { getSessionStreamPath } from "../../utils/paths";
+import { handleSessionDeletion } from "../../utils/transcode-manager";
 
 export const VideoStreamSession = objectType({
   name: "VideoStreamSession",
@@ -125,6 +129,34 @@ export const MutationDeleteVideoStreamSessions = extendType({
   },
 });
 
+export const MutationDeleteVideoStreamSession = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("deleteVideoStreamSession", {
+      type: "Boolean",
+      args: {
+        id: stringArg(),
+      },
+      async resolve(_root, args, ctx) {
+        try {
+          await ctx.prisma.videoStreamSession.delete({
+            where: {
+              id: args.id,
+            },
+          });
+
+          // Make sure to kill transcoders
+          handleSessionDeletion(args.id);
+          return true;
+        } catch (err) {
+          console.error(err);
+          return false;
+        }
+      },
+    });
+  },
+});
+
 export const MutationCreateVideoStreamSession = extendType({
   type: "Mutation",
   definition(t) {
@@ -216,7 +248,7 @@ export const MutationCreateVideoStreamSession = extendType({
         }
 
         // Transcode
-        await ctx.prisma.videoStreamProfile.create({
+        const profile = await ctx.prisma.videoStreamProfile.create({
           data: {
             id: `profile${Math.random() * 1000000}`,
             isHls: true,
@@ -233,6 +265,36 @@ export const MutationCreateVideoStreamSession = extendType({
             },
           },
         });
+
+        let manifest = "";
+        manifest += "#EXTM3U\n";
+        manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
+        manifest += "#EXT-X-TARGETDURATION:2\n";
+        manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
+        manifest += "#EXT-X-VERSION:3\n";
+
+        let duration = probeData.videoStreams[0].duration || probeData.containerDuration;
+        if (!duration) {
+          console.error("Duration not found");
+          return null;
+        }
+
+        let index = 0;
+        for (; duration >= 2; duration -= 2) {
+          manifest += "#EXTINF:2.000000,\n";
+          manifest += `${index++}.ts\n`;
+        }
+
+        if (duration > 0) {
+          manifest += `#EXTINF:${duration.toFixed(6)},\n`;
+          manifest += `${index}.ts\n`;
+        }
+
+        manifest += "#EXT-X-ENDLIST\n";
+
+        const streamDir = getSessionStreamPath(session.id, profile.id);
+        await fse.ensureDir(streamDir);
+        await fse.writeFile(path.join(streamDir, "index.m3u8"), manifest);
 
         return session;
       },

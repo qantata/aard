@@ -124,6 +124,10 @@ export const probeFileVideoBitrate = async (
     bitrate = sum / parseFloat(formatDuration);
   }
 
+  if (bitrate === 0) {
+    console.error("Failed to get bitrate for file:", filepath);
+  }
+
   // Packets are in bytes but the bit_rate value reported in
   // "streams" when using ffprobe is in bits, so let's use bits
   return Math.floor(bitrate * 8);

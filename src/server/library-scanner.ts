@@ -54,13 +54,15 @@ export const scanNewLibrary = async (id: string, root: string) => {
     .pipe(videoFileFilter)
     .on("data", async (item) => {
       try {
+        console.log("Found video file:", item.path);
         const rawProbeData = await probeFileData(item.path);
 
         // For streams that don't have the bit_rate value, we need to probe it manually
         for (const [index, stream] of rawProbeData.streams.entries()) {
           if ((stream.codec_type === "video" || stream.codec_type === "audio") && !stream.bit_rate) {
-            const bitRate = await probeFileVideoBitrate(item.path, index, rawProbeData.format?.duration);
-            rawProbeData.streams[index].bit_rate = `${bitRate}`;
+            //const bitRate = await probeFileVideoBitrate(item.path, index, rawProbeData.format?.duration);
+            //rawProbeData.streams[index].bit_rate = `${bitRate}`;
+            // TODO: Maybe we shouldnt do this, it takes a long time for long video files
           }
         }
 
@@ -89,10 +91,19 @@ const createScannedMovie = async (
 ) => {
   const parseData = filenameParse(path.basename(filepath, path.extname(filepath)));
 
+  // TODO: Add proper implementation for this
+  // The library doesn't parse filenames correctly if they dont have a year
+  // and the words are separated by dots
+  let title = parseData.title;
+  const splitByDot = parseData.title.split(".");
+  if (splitByDot.filter((s) => s.length > 0).length > 1) {
+    title = splitByDot.join(" ");
+  }
+
   await context().prisma.movie.create({
     data: {
       id: String(Math.random() * 100000),
-      title: parseData.title,
+      title,
       year: parseData.year ? parseInt(parseData.year) : null,
       library: {
         connect: {

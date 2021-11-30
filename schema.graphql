@@ -24,6 +24,7 @@ type Mutation {
   createLibrary(root: String!): Library
   createVideoStreamSession(entryId: String!, profile: ClientStreamProfileInput!): VideoStreamSession
   deleteLibrary(id: String!): Library
+  deleteVideoStreamSession(id: String!): Boolean
   deleteVideoStreamSessions: Boolean
 }
 

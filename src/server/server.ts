@@ -8,6 +8,7 @@ binaryHack();
 // App starts here
 import fs from "fs";
 import path from "path";
+import cors from "cors";
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import { ApolloServer } from "apollo-server-express";
@@ -20,6 +21,8 @@ import { applyPrismaMiddleware } from "./middleware";
 import { DEV, VERSION } from "./utils/constants";
 import { migrateDb } from "./utils/migrate-db";
 import { updateFfmpegCache } from "./utils/ffmpeg-cache";
+import { handleStreamSegmentRequest } from "./utils/transcode-manager";
+import { getSessionStreamPath } from "./utils/paths";
 
 const createServer = async () => {
   applyPrismaMiddleware();
@@ -31,6 +34,7 @@ const createServer = async () => {
 
   // Main server
   const app = express();
+  app.use(cors());
 
   // Apollo server for graphql
   const server = new ApolloServer({
@@ -90,8 +94,8 @@ const createServer = async () => {
       let filepath = movie.files[0].path;
       const b = path.basename(filepath);
       const possibilities = [
-        filepath.replace(".mp4", ".jpg"),
-        filepath.replace(b, b.toLocaleLowerCase().replace(".mp4", ".jpg")),
+        filepath.replace(path.extname(filepath), ".jpg"),
+        filepath.replace(b, b.toLocaleLowerCase().replace(path.extname(filepath), ".jpg")),
         filepath.replace(b, "Cover.jpg"),
         filepath.replace(b, "cover.jpg"),
       ];
@@ -120,6 +124,60 @@ const createServer = async () => {
       res.status(404).send();
     } else {
       res.sendFile(session.file.path);
+    }
+  });
+
+  app.get("/data/session/:sessionid/stream/:streamid/playlist", async (req, res) => {
+    const session = await context().prisma.videoStreamSession.findUnique({
+      where: {
+        id: req.params.sessionid,
+      },
+      include: {
+        clients: {
+          include: {
+            profiles: true,
+          },
+        },
+      },
+    });
+
+    const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
+
+    if (!session || !profile) {
+      res.status(404).send();
+    } else {
+      res.sendFile(getSessionStreamPath(session.id, profile.id, "index.m3u8"));
+    }
+  });
+
+  app.get("/data/session/:sessionid/stream/:streamid/:file", async (req, res) => {
+    const session = await context().prisma.videoStreamSession.findUnique({
+      where: {
+        id: req.params.sessionid,
+      },
+      include: {
+        file: true,
+        clients: {
+          include: {
+            profiles: true,
+          },
+        },
+      },
+    });
+
+    const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
+
+    if (!session || !profile) {
+      res.status(404).send();
+    } else {
+      handleStreamSegmentRequest(session.file.path, session.id, profile.id, req.params.file);
+
+      const segmentFilepath = getSessionStreamPath(session.id, profile.id, req.params.file);
+      if (fs.existsSync(segmentFilepath)) {
+        res.sendFile(segmentFilepath);
+      } else {
+        res.status(404).send();
+      }
     }
   });
 

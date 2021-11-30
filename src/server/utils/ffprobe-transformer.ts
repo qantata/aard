@@ -91,7 +91,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
       !s.codec_name ||
       !s.width ||
       !s.height ||
-      !s.bit_rate ||
+      //!s.bit_rate ||
       !decoders.video[s.codec_name]
     ) {
       return [];
@@ -110,7 +110,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
       width: s.width,
       height: s.height,
       level: s.level,
-      bitRate: parseFloat(s.bit_rate),
+      bitRate: s.bit_rate ? parseFloat(s.bit_rate) : 0,
       fps,
       duration: s.duration ? parseFloat(s.duration) : undefined,
       bitsPerSample: s.bits_per_raw_sample ? parseInt(s.bits_per_raw_sample) : undefined,
@@ -126,7 +126,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
       s.codec_type !== "audio" ||
       !s.codec_name ||
       !decoders.audio[s.codec_name] ||
-      !s.bit_rate ||
+      //!s.bit_rate ||
       s.bit_rate === "0"
     ) {
       return [];
@@ -136,7 +136,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
       codec: s.codec_name!,
       profile: s.profile,
       channels: s.channels,
-      bitRate: parseFloat(s.bit_rate),
+      bitRate: s.bit_rate ? parseFloat(s.bit_rate) : 0,
       duration: s.duration ? parseFloat(s.duration) : undefined,
     };
   });
