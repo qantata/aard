@@ -1,6 +1,6 @@
-import { extendType, inputObjectType, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, nonNull, objectType, stringArg } from "nexus";
 
-import { VideoStreamSession as PVideoStreamSession, VideoStreamProfile } from "nexus-prisma";
+import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
 import { parseProbeDataString } from "../../utils/ffprobe-transformer";
 
 export const VideoStreamSession = objectType({
@@ -29,6 +29,32 @@ export const QueryVideoStreamSessions = extendType({
   },
 });
 
+export const QueryVideoStreamSession = extendType({
+  type: "Query",
+  definition(t) {
+    t.nullable.field("videoStreamSession", {
+      type: PVideoStreamSession.$name,
+      args: {
+        id: stringArg(),
+      },
+      async resolve(_root, args, ctx) {
+        return await ctx.prisma.videoStreamSession.findUnique({
+          where: {
+            id: args.id,
+          },
+          include: {
+            clients: {
+              include: {
+                profiles: true,
+              },
+            },
+          },
+        });
+      },
+    });
+  },
+});
+
 const ProfileContainersInput = inputObjectType({
   name: "ProfileContainersInput",
   definition(t) {
@@ -42,8 +68,8 @@ const ProfileContainersInput = inputObjectType({
 const ProfileH264Input = inputObjectType({
   name: "ProfileH264Input",
   definition(t) {
-    t.nonNull.int("level");
-    t.nonNull.string("profile");
+    t.int("level");
+    t.string("profile");
   },
 });
 

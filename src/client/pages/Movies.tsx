@@ -22,7 +22,7 @@ type Props = {
 };
 
 const Movies: React.FunctionComponent<Props> = ({ prepared }) => {
-  const data = usePreloadedQuery(
+  const data = usePreloadedQuery<MoviesQuery>(
     graphql`
       query MoviesQuery {
         movies {
@@ -37,6 +37,8 @@ const Movies: React.FunctionComponent<Props> = ({ prepared }) => {
   return (
     <Container>
       {data.movies.map((movie) => {
+        if (!movie) return null;
+
         return <MovieGridItem key={movie.id} movie={movie} />;
       })}
     </Container>

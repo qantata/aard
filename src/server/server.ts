@@ -106,6 +106,23 @@ const createServer = async () => {
     }
   });
 
+  app.get("/data/session/:id/direct", async (req, res) => {
+    const session = await context().prisma.videoStreamSession.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        file: true,
+      },
+    });
+
+    if (!session) {
+      res.status(404).send();
+    } else {
+      res.sendFile(session.file.path);
+    }
+  });
+
   SubscriptionServer.create(
     {
       schema,

@@ -20,12 +20,11 @@ model Library {
 }
 
 model Movie {
-  id        String    @id
+  id        String      @id
   title     String
   year      Int?
-  file      VideoFile @relation(fields: [fileId], references: [id])
-  fileId    String    @unique
-  library   Library   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  files     VideoFile[]
+  library   Library     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
   libraryId String
 }
 
@@ -34,7 +33,8 @@ model VideoFile {
   path         String
   rawProbeData String
   probeData    String
-  movie        Movie?
+  movie        Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId      String
 
   streamSessions VideoStreamSession[]
 }

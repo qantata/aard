@@ -16,7 +16,7 @@ export const Movie = objectType({
 export const QueryMovies = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("movies", {
+    t.nonNull.list.field("movies", {
       type: PMovie.$name,
       async resolve(_root, _args, ctx) {
         return await ctx.prisma.movie.findMany();

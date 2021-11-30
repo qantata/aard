@@ -19,7 +19,7 @@ export const schema = makeSchema({
   },
   nonNullDefaults: {
     input: true,
-    output: true,
+    output: false,
   },
   features: {
     abstractTypeStrategies: {
