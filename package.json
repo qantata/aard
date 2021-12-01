@@ -35,6 +35,7 @@
     "@prisma/migrate": "^3.5.0",
     "@prisma/sdk": "^3.5.0",
     "apollo-server-express": "^3.5.0",
+    "bottleneck": "^2.19.5",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",

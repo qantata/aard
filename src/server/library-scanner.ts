@@ -3,12 +3,17 @@ import path from "path";
 import through2 from "through2";
 import fs from "fs";
 import { filenameParse } from "@ctrl/video-filename-parser";
+import Bottleneck from "bottleneck";
 
 import { context } from "./context";
 import { isDirectory } from "./utils/filesystem";
 import { ffprobe, FFProbeOutputType, probeFileData, probeFileVideoBitrate } from "./utils/ffmpeg";
 import { getDemuxerFileExtensions } from "./utils/ffmpeg-support";
 import { transformAndValidateFfprobeOutput, VideoProbeResultType } from "./utils/ffprobe-transformer";
+
+const movieCreatorLimiter = new Bottleneck({
+  maxConcurrent: 1,
+});
 
 // TODO: Handle errors better
 export const scanNewLibrary = async (id: string, root: string) => {
@@ -67,8 +72,7 @@ export const scanNewLibrary = async (id: string, root: string) => {
         }
 
         const probeData = await transformAndValidateFfprobeOutput(rawProbeData);
-
-        createScannedMovie(id, item.path, rawProbeData, probeData);
+        movieCreatorLimiter.schedule(() => createScannedMovie(id, item.path, rawProbeData, probeData));
       } catch (err) {
         // File isn't compatible with ffmpeg or something else went wrong
         console.error(err);
@@ -100,25 +104,30 @@ const createScannedMovie = async (
     title = splitByDot.join(" ");
   }
 
-  await context().prisma.movie.create({
-    data: {
-      id: String(Math.random() * 100000),
-      title,
-      year: parseData.year ? parseInt(parseData.year) : null,
-      library: {
-        connect: {
-          id: libraryId,
+  try {
+    await context().prisma.movie.create({
+      data: {
+        id: String(Math.random() * 100000),
+        title,
+        year: parseData.year ? parseInt(parseData.year) : null,
+        library: {
+          connect: {
+            id: libraryId,
+          },
+        },
+        files: {
+          create: {
+            id: `video-file${Math.random() * 100000}`,
+            path: filepath,
+            // TODO: Let's not do this :)
+            rawProbeData: JSON.stringify(rawProbeData),
+            probeData: JSON.stringify(probeData),
+          },
         },
       },
-      files: {
-        create: {
-          id: `video-file${Math.random() * 100000}`,
-          path: filepath,
-          // TODO: Let's not do this :)
-          rawProbeData: JSON.stringify(rawProbeData),
-          probeData: JSON.stringify(probeData),
-        },
-      },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("Couldn't create movie for file", filepath);
+    console.error(err);
+  }
 };
