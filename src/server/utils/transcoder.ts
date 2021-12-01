@@ -28,6 +28,8 @@ export class Transcoder {
       "yuv420p",
       "-c:a",
       "aac",
+      "-ac",
+      "2",
       "-force_key_frames",
       "expr:gte(t,0+n_forced*2)",
       "-f",
