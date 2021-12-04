@@ -37,20 +37,28 @@ const getCodersFromFfmpegOutput = (output: string[]) => {
     }
 
     const flags = cols[1];
-    const codec = cols[2];
+    const codecs = [cols[2]];
 
-    switch (flags[0]) {
-      case "V":
-        coders.video[codec] = true;
-        break;
-      case "A":
-        coders.audio[codec] = true;
-        break;
-      case "S":
-        coders.subtitle[codec] = true;
-        break;
-      default:
-        console.warn("encountered unknown ffmpeg type:", flags[0]);
+    // Sometimes there's an additional codec name at the
+    // end of the line
+    if (cols[cols.length - 2] === "(codec") {
+      codecs.push(cols[cols.length - 1].replace(")", ""));
+    }
+
+    for (const codec of codecs) {
+      switch (flags[0]) {
+        case "V":
+          coders.video[codec] = true;
+          break;
+        case "A":
+          coders.audio[codec] = true;
+          break;
+        case "S":
+          coders.subtitle[codec] = true;
+          break;
+        default:
+          console.warn("encountered unknown ffmpeg type:", flags[0]);
+      }
     }
   }
 
