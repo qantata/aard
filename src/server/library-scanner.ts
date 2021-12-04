@@ -75,7 +75,7 @@ export const scanNewLibrary = async (id: string, root: string) => {
         movieCreatorLimiter.schedule(() => createScannedMovie(id, item.path, rawProbeData, probeData));
       } catch (err) {
         // File isn't compatible with ffmpeg or something else went wrong
-        console.error(err);
+        console.error(item.path, err);
       }
     })
     .on("error", (err: Error, item: any) => {
