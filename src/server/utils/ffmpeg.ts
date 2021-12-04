@@ -30,6 +30,7 @@ const ffspawn = async (cmd: "ffmpeg" | "ffprobe", filepath: string | null, args:
 // TODO: Fully type this
 export type FFProbeOutputType = {
   streams: {
+    index?: number;
     codec_name?: string;
     profile?: string;
     codec_type?: string;

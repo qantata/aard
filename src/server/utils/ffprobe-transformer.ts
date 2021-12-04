@@ -15,6 +15,7 @@ export type VideoProbeResultType = {
   container: string;
   containerDuration?: number;
   videoStreams: {
+    index: number;
     codec: string;
     profile?: string;
     width: number;
@@ -26,6 +27,7 @@ export type VideoProbeResultType = {
     fps?: number;
   }[];
   audioStreams: {
+    index: number;
     codec: string;
     profile?: string;
     channels?: number;
@@ -88,6 +90,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
   const videoStreams: VideoProbeResultType["videoStreams"] = output.streams.flatMap((s) => {
     if (
       s.codec_type !== "video" ||
+      s.index === undefined ||
       !s.codec_name ||
       !s.width ||
       !s.height ||
@@ -105,6 +108,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
     }
 
     return {
+      index: s.index,
       codec: s.codec_name!,
       profile: s.profile,
       width: s.width,
@@ -124,6 +128,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
   const audioStreams: VideoProbeResultType["audioStreams"] = output.streams.flatMap((s) => {
     if (
       s.codec_type !== "audio" ||
+      s.index === undefined ||
       !s.codec_name ||
       !decoders.audio[s.codec_name] ||
       //!s.bit_rate ||
@@ -133,6 +138,7 @@ export const transformAndValidateFfprobeOutput = async (output: FFProbeOutputTyp
     }
 
     return {
+      index: s.index,
       codec: s.codec_name!,
       profile: s.profile,
       channels: s.channels,

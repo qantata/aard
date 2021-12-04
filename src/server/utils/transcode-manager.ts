@@ -1,10 +1,10 @@
+import { VideoProbeResultType } from "./ffprobe-transformer";
 import { getSessionStreamPath } from "./paths";
 import { Transcoder } from "./transcoder";
 
 type Transcodes = {
   [sessionId: string]: {
     [streamId: string]: {
-      latestSegment: number;
       transcoder: Transcoder;
     };
   };
@@ -16,7 +16,8 @@ export const handleStreamSegmentRequest = async (
   filepath: string,
   sessionId: string,
   streamId: string,
-  segment: string
+  segment: string,
+  probeData: VideoProbeResultType
 ) => {
   const streamPath = getSessionStreamPath(sessionId, streamId);
 
@@ -27,10 +28,28 @@ export const handleStreamSegmentRequest = async (
     }
 
     transcodes[sessionId][streamId] = {
-      latestSegment: 0,
-      transcoder: new Transcoder(filepath, streamPath),
+      transcoder: new Transcoder(filepath, streamPath, probeData),
     };
   }
+
+  const segmentNr = parseInt(segment);
+  const transcoder = transcodes[sessionId][streamId].transcoder;
+  const segmentExists = transcodes[sessionId][streamId].transcoder.requestSegment(segmentNr);
+
+  if (segmentExists) {
+    return;
+  }
+
+  // This relies on the client not requesting multiple different segments in parallel.
+  // Hls.js doesn't do this at least but when new clients are added, this needs to be
+  // changed if they do request segments in parallel
+  const promise = new Promise<void>((resolve, _reject) => {
+    transcoder.onSegmentTranscoded((segment) => {
+      if (segment === segmentNr) resolve();
+    });
+  });
+
+  return promise;
 };
 
 export const handleSessionDeletion = async (sessionId: string) => {
@@ -38,7 +57,7 @@ export const handleSessionDeletion = async (sessionId: string) => {
 
   if (session) {
     for (const key in session) {
-      session[key].transcoder.stop();
+      session[key].transcoder.destroy();
     }
   }
 

@@ -1,11 +1,11 @@
-import { extendType, inputObjectType, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, intArg, objectType, stringArg } from "nexus";
 import fse from "fs-extra";
 import path from "path";
 
 import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
 import { parseProbeDataString } from "../../utils/ffprobe-transformer";
 import { getSessionStreamPath } from "../../utils/paths";
-import { handleSessionDeletion } from "../../utils/transcode-manager";
+import { handleSessionDeletion, handleStreamSegmentRequest } from "../../utils/transcode-manager";
 
 export const VideoStreamSession = objectType({
   name: "VideoStreamSession",
@@ -157,6 +157,96 @@ export const MutationDeleteVideoStreamSession = extendType({
   },
 });
 
+// TODO: Move the manifest generation to a method
+export const MutationSeekVideoStreamSession = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("seekVideoStreamSession", {
+      type: "Boolean",
+      args: {
+        id: stringArg(),
+        clientId: stringArg(),
+        profileId: stringArg(),
+        time: intArg(),
+      },
+      async resolve(_root, args, ctx) {
+        const session = await ctx.prisma.videoStreamSession.findUnique({
+          where: {
+            id: args.id,
+          },
+          include: {
+            file: true,
+            clients: {
+              include: {
+                profiles: true,
+              },
+            },
+          },
+        });
+
+        if (!session) {
+          console.error("Session not found");
+          return false;
+        }
+
+        const client = session.clients.find((c) => c.id === args.clientId);
+        if (!client) {
+          console.error("Session client not found");
+          return false;
+        }
+
+        const profile = client.profiles.find((p) => p.id === args.profileId);
+        if (!profile) {
+          console.error("Client profile not found");
+          return false;
+        }
+
+        const probeData = parseProbeDataString(session.file.probeData);
+        const segment = Math.floor(args.time / 2);
+
+        if (segment > 0) {
+          const segmentDuration = 3;
+          let manifest = "";
+          manifest += "#EXTM3U\n";
+          manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
+          manifest += `#EXT-X-TARGETDURATION:${segmentDuration}\n`;
+          manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
+          manifest += "#EXT-X-VERSION:3\n";
+
+          let duration = probeData.videoStreams[0].duration || probeData.containerDuration;
+          if (!duration) {
+            console.error("Duration not found");
+            return null;
+          }
+
+          let index = 0;
+          for (; duration >= segmentDuration; duration -= segmentDuration) {
+            if (index === segment) {
+              manifest += "#EXT-X-DISCONTINUITY\n";
+            }
+            manifest += `#EXTINF:${segmentDuration}.000000,\n`;
+            manifest += `${index++}.ts\n`;
+          }
+
+          if (duration > 0) {
+            manifest += `#EXTINF:${duration.toFixed(6)},\n`;
+            manifest += `${index}.ts\n`;
+          }
+
+          manifest += "#EXT-X-ENDLIST\n";
+
+          const streamDir = getSessionStreamPath(session.id, profile.id);
+          await fse.ensureDir(streamDir);
+          await fse.writeFile(path.join(streamDir, "index.m3u8"), manifest);
+        }
+
+        handleStreamSegmentRequest(session.file.path, session.id, profile.id, `${segment}.ts`, probeData);
+        return true;
+      },
+    });
+  },
+});
+
 export const MutationCreateVideoStreamSession = extendType({
   type: "Mutation",
   definition(t) {
@@ -266,10 +356,11 @@ export const MutationCreateVideoStreamSession = extendType({
           },
         });
 
+        const segmentDuration = 3;
         let manifest = "";
         manifest += "#EXTM3U\n";
         manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
-        manifest += "#EXT-X-TARGETDURATION:2\n";
+        manifest += `#EXT-X-TARGETDURATION:${segmentDuration}\n`;
         manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
         manifest += "#EXT-X-VERSION:3\n";
 
@@ -280,8 +371,8 @@ export const MutationCreateVideoStreamSession = extendType({
         }
 
         let index = 0;
-        for (; duration >= 2; duration -= 2) {
-          manifest += "#EXTINF:2.000000,\n";
+        for (; duration >= segmentDuration; duration -= segmentDuration) {
+          manifest += `#EXTINF:${segmentDuration}.000000,\n`;
           manifest += `${index++}.ts\n`;
         }
 

@@ -23,6 +23,7 @@ import { migrateDb } from "./utils/migrate-db";
 import { updateFfmpegCache } from "./utils/ffmpeg-cache";
 import { handleStreamSegmentRequest } from "./utils/transcode-manager";
 import { getSessionStreamPath } from "./utils/paths";
+import { parseProbeDataString } from "./utils/ffprobe-transformer";
 
 const createServer = async () => {
   applyPrismaMiddleware();
@@ -164,13 +165,19 @@ const createServer = async () => {
         },
       },
     });
-
     const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
 
     if (!session || !profile) {
       res.status(404).send();
     } else {
-      handleStreamSegmentRequest(session.file.path, session.id, profile.id, req.params.file);
+      // Wait for segment to be transcoded
+      await handleStreamSegmentRequest(
+        session.file.path,
+        session.id,
+        profile.id,
+        req.params.file,
+        parseProbeDataString(session.file.probeData)
+      );
 
       const segmentFilepath = getSessionStreamPath(session.id, profile.id, req.params.file);
       if (fs.existsSync(segmentFilepath)) {
