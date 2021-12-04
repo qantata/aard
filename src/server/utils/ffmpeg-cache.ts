@@ -19,7 +19,7 @@ export const updateFfmpegCache = async () => {
   return new Promise<void>(async (resolve) => {
     const cachePath = path.join(DATA_DIR, "ffmpeg-cache.json");
     let shouldUpdate = false;
-    let ffmpegHash: string | undefined;
+    const ffmpegHash: string = await sha256("/usr/bin/ffmpeg");
 
     if (!fs.existsSync(cachePath)) {
       console.log("The ffmpeg cache doesn't exist and will be created");
@@ -33,7 +33,6 @@ export const updateFfmpegCache = async () => {
 
       try {
         // TODO: Don't hardcode path
-        ffmpegHash = await sha256("/usr/bin/ffmpeg");
         const oldHash = cacheData.ffmpegHash;
 
         if (!oldHash || ffmpegHash !== oldHash) {
