@@ -36,40 +36,51 @@ export class Transcoder {
     this.probeData = probeData;
   }
 
-  private enableWatcher() {
-    const dir = path.join(this.outDir, String(this.transcodeDirNumber));
-    fse.ensureDirSync(dir);
+  private async enableWatcher() {
+    return new Promise<void>((resolve) => {
+      const dir = path.join(this.outDir, String(this.transcodeDirNumber));
+      fse.ensureDirSync(dir);
 
-    if (this.watcher) {
-      this.watcher.add(dir);
-    } else {
-      this.watcher = chokidar.watch(dir).on("add", async (filepath, _event) => {
-        const filename = path.basename(filepath);
+      if (this.watcher) {
+        this.watcher.add(dir);
+      } else {
+        this.watcher = chokidar
+          .watch(dir, {
+            ignoreInitial: true,
+            // Important so that we don't send incomplete segments!
+            // We're using the default values right now, which will
+            // delay sending the segments by about 2000ms.
+            // TODO: Find more optimal values.
+            awaitWriteFinish: {
+              stabilityThreshold: 2000,
+              pollInterval: 100,
+            },
+          })
+          .on("add", async (filepath, _event) => {
+            const filename = path.basename(filepath);
 
-        const segmentNr = parseInt(filename);
-        this.currentSegment = segmentNr + 1;
+            const segmentNr = parseInt(filename);
+            this.currentSegment = segmentNr + 1;
 
-        try {
-          const dir = path.dirname(filepath);
-          const dist = path.join(dir, "..", `${segmentNr}.ts`);
+            try {
+              const dir = path.dirname(filepath);
+              const dist = path.join(dir, "..", `${segmentNr}.ts`);
 
-          // This can happen if the client seeked forward and then
-          // back again, and then it later catches up with the buffered
-          // region later in the video. We have to re-transcode it because
-          // -ss with ffmpeg doesn't really work as expected and there will
-          // be audio issues at the very least where the 2 regions meet.
-          if (fse.existsSync(dist)) {
-            await fse.remove(dist);
-          }
-
-          await fse.move(filepath, dist);
-          this.finishedSegments[segmentNr] = true;
-          this.onSegmentTranscodedCallback?.(segmentNr);
-        } catch (err) {
-          console.error(err);
-        }
-      });
-    }
+              // The file can exist already if the client seeked forward and then
+              // back again, and then it later catches up with the buffered
+              // region later in the video. We have to re-transcode it because
+              // -ss with ffmpeg doesn't really work as expected and there will
+              // be audio issues at the very least where the 2 regions meet.
+              await fse.move(filepath, dist, { overwrite: true });
+              this.finishedSegments[segmentNr] = true;
+              this.onSegmentTranscodedCallback?.(segmentNr);
+            } catch (err) {
+              console.error(err);
+            }
+          })
+          .on("ready", resolve);
+      }
+    });
   }
 
   private disableWatcher() {
@@ -78,7 +89,7 @@ export class Transcoder {
 
   // TODO: Add video and audio bitrates
   private startTranscode() {
-    const segmentDuration = 3;
+    const segmentDuration = 2;
     const seconds = this.currentSegment * segmentDuration;
     console.log("Transcoding from", seconds, "seconds");
 
@@ -126,6 +137,10 @@ export class Transcoder {
       "veryfast",
       "-crf",
       "23",
+      "-profile:v",
+      "high",
+      "-level",
+      "41",
     ];
 
     // Key interval - this is important when seeking
@@ -137,7 +152,7 @@ export class Transcoder {
     args = [
       ...args,
       "-force_key_frames",
-      `expr:gte(t,n_forced*${segmentDuration})`,
+      `expr:gte(t,${this.currentSegment}+n_forced*${segmentDuration})`,
       // TODO: Resolution based on profile
       "-vf",
       "scale=1920:-2",
@@ -203,10 +218,10 @@ export class Transcoder {
   /**
    * @returns {boolean} True if segment already exists, false otherwise
    */
-  requestSegment(segment: number) {
+  async requestSegment(segment: number, isPreloadRequest: boolean) {
     const isNextSegment = segment === this.nextSegment;
     const isInProcessSegment = segment >= this.currentSegment && segment < this.nextSegment;
-    console.log("Request", segment);
+
     if (isNextSegment) {
       this.nextSegment++;
     }
@@ -227,11 +242,14 @@ export class Transcoder {
     this.disableWatcher();
     this.process?.kill();
     this.currentSegment = segment;
-    this.nextSegment = segment + 1;
+
+    // Preload request isn't made by the client's video player, so let's not increment nextSegment
+    this.nextSegment = isPreloadRequest ? segment : segment + 1;
     this.transcodeDirNumber++;
 
-    this.enableWatcher();
+    await this.enableWatcher();
     this.startTranscode();
+
     return false;
   }
 

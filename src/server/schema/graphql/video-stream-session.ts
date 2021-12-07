@@ -301,6 +301,9 @@ export const MutationCreateVideoStreamSession = extendType({
               },
             },
           },
+          include: {
+            file: true,
+          },
         });
 
         const client = await ctx.prisma.videoStreamSessionClient.create({
@@ -356,7 +359,7 @@ export const MutationCreateVideoStreamSession = extendType({
           },
         });
 
-        const segmentDuration = 3;
+        const segmentDuration = 2;
         let manifest = "";
         manifest += "#EXTM3U\n";
         manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
@@ -386,6 +389,7 @@ export const MutationCreateVideoStreamSession = extendType({
         const streamDir = getSessionStreamPath(session.id, profile.id);
         await fse.ensureDir(streamDir);
         await fse.writeFile(path.join(streamDir, "index.m3u8"), manifest);
+        await handleStreamSegmentRequest(session.file.path, session.id, profile.id, "0", probeData);
 
         return session;
       },

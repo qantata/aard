@@ -17,7 +17,8 @@ export const handleStreamSegmentRequest = async (
   sessionId: string,
   streamId: string,
   segment: string,
-  probeData: VideoProbeResultType
+  probeData: VideoProbeResultType,
+  isPreloadRequest: boolean = false
 ) => {
   const streamPath = getSessionStreamPath(sessionId, streamId);
 
@@ -34,22 +35,20 @@ export const handleStreamSegmentRequest = async (
 
   const segmentNr = parseInt(segment);
   const transcoder = transcodes[sessionId][streamId].transcoder;
-  const segmentExists = transcodes[sessionId][streamId].transcoder.requestSegment(segmentNr);
+  const segmentExists = await transcodes[sessionId][streamId].transcoder.requestSegment(segmentNr, isPreloadRequest);
 
   if (segmentExists) {
     return;
   }
 
   // This relies on the client not requesting multiple different segments in parallel.
-  // Hls.js doesn't do this at least but when new clients are added, this needs to be
+  // The current web client doesn't do this at least but when new clients are added, this needs to be
   // changed if they do request segments in parallel
-  const promise = new Promise<void>((resolve, _reject) => {
+  return new Promise<void>((resolve) => {
     transcoder.onSegmentTranscoded((segment) => {
       if (segment === segmentNr) resolve();
     });
   });
-
-  return promise;
 };
 
 export const handleSessionDeletion = async (sessionId: string) => {
