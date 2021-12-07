@@ -43,6 +43,7 @@ export class Transcoder {
 
       if (this.watcher) {
         this.watcher.add(dir);
+        resolve();
       } else {
         this.watcher = chokidar
           .watch(dir, {
@@ -58,12 +59,21 @@ export class Transcoder {
           })
           .on("add", async (filepath, _event) => {
             const filename = path.basename(filepath);
+            const dir = path.dirname(filepath);
+
+            // Because of the delay caused by awaitWriteFinish,
+            // the "add" event can be fired after we started
+            // transcoding at a new point, so we need to do a check
+            // here.
+            const dirNumber = parseInt(dir.slice(dir.lastIndexOf("/") + 1));
+            if (dirNumber !== this.transcodeDirNumber) {
+              return;
+            }
 
             const segmentNr = parseInt(filename);
             this.currentSegment = segmentNr + 1;
 
             try {
-              const dir = path.dirname(filepath);
               const dist = path.join(dir, "..", `${segmentNr}.ts`);
 
               // The file can exist already if the client seeked forward and then
