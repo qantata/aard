@@ -128,29 +128,6 @@ const createServer = async () => {
     }
   });
 
-  app.get("/data/session/:sessionid/stream/:streamid/playlist", async (req, res) => {
-    const session = await context().prisma.videoStreamSession.findUnique({
-      where: {
-        id: req.params.sessionid,
-      },
-      include: {
-        clients: {
-          include: {
-            profiles: true,
-          },
-        },
-      },
-    });
-
-    const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
-
-    if (!session || !profile) {
-      res.status(404).send();
-    } else {
-      res.sendFile(getSessionStreamPath(session.id, profile.id, "index.m3u8"));
-    }
-  });
-
   app.get("/data/session/:sessionid/stream/:streamid/:file", async (req, res) => {
     const session = await context().prisma.videoStreamSession.findUnique({
       where: {
@@ -165,11 +142,17 @@ const createServer = async () => {
         },
       },
     });
+
     const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
 
     if (!session || !profile) {
       res.status(404).send();
     } else {
+      if (req.params.file.endsWith(".m3u8")) {
+        res.sendFile(getSessionStreamPath(session.id, profile.id, req.params.file));
+        return;
+      }
+
       // Wait for segment to be transcoded
       await handleStreamSegmentRequest(
         session.file.path,
@@ -203,7 +186,6 @@ const createServer = async () => {
 
   const EXPRESS_PORT = 5004;
   const VITE_PORT = 5005;
-
   await vite.listen(VITE_PORT);
   app.listen(EXPRESS_PORT, () => {
     console.log(`> Aard version ${VERSION()} ready at http://localhost:${VITE_PORT}`);
