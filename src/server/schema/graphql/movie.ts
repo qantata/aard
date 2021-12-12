@@ -8,14 +8,15 @@ export const Movie = objectType({
   definition(t) {
     t.field(PMovie.id);
     t.field(PMovie.title);
-    t.field(PMovie.filepath);
+    t.field(PMovie.library);
+    t.field(PMovie.files);
   },
 });
 
 export const QueryMovies = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("movies", {
+    t.nonNull.list.field("movies", {
       type: PMovie.$name,
       async resolve(_root, _args, ctx) {
         return await ctx.prisma.movie.findMany();

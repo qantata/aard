@@ -1,5 +1,6 @@
 import fs from "fs";
 import fse from "fs-extra";
+import crypto from "crypto";
 
 export const isDirectory = async (path: string) => {
   return new Promise(async (resolve) => {
@@ -18,5 +19,15 @@ export const isDirectory = async (path: string) => {
 
       resolve(stats.isDirectory());
     });
+  });
+};
+
+export const sha256 = (path: string) => {
+  return new Promise<string>((resolve, reject) => {
+    const hash = crypto.createHash("sha256");
+    const rs = fs.createReadStream(path);
+    rs.on("error", (err) => reject(err));
+    rs.on("data", (chunk) => hash.update(chunk));
+    rs.on("end", () => resolve(hash.digest("hex")));
   });
 };

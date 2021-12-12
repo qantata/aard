@@ -29,11 +29,15 @@ export const MovieGridItem: React.FunctionComponent<Props> = ({ movie }) => {
     movie
   );
 
+  if (!data) {
+    return null;
+  }
+
   return (
     <Link to={`/movies/${data.id}`}>
       <Cover
         style={{
-          backgroundImage: `url(http://localhost:5004/data/movies/${movie.id}/cover)`,
+          backgroundImage: `url(http://localhost:5004/data/movies/${data.id}/cover)`,
         }}
       />
 
