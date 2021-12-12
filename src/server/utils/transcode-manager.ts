@@ -5,9 +5,7 @@ import { Transcoder } from "./transcoder";
 
 type Transcodes = {
   [sessionId: string]: {
-    [streamId: string]: {
-      transcoder: Transcoder;
-    };
+    transcoder: Transcoder;
   };
 };
 
@@ -16,7 +14,7 @@ const transcodes: Transcodes = {};
 export const handleStreamSegmentRequest = async (
   filepath: string,
   sessionId: string,
-  streamId: string,
+  profileId: string,
   segment: string,
   probeData: VideoProbeResultType,
   width: number,
@@ -24,24 +22,20 @@ export const handleStreamSegmentRequest = async (
   audioBitrate?: number,
   isPreloadRequest: boolean = false
 ) => {
-  const streamPath = getSessionStreamPath(sessionId, streamId);
-
-  const stream = transcodes[sessionId]?.[streamId];
+  const stream = transcodes[sessionId];
   if (!stream) {
-    if (!transcodes[sessionId]) {
-      transcodes[sessionId] = {};
-    }
-
-    transcodes[sessionId][streamId] = {
-      transcoder: new Transcoder(filepath, streamPath, probeData),
+    transcodes[sessionId] = {
+      transcoder: new Transcoder(filepath, probeData),
     };
   }
 
   const segmentNr = parseInt(segment);
-  const transcoder = transcodes[sessionId][streamId].transcoder;
-  const segmentExists = await transcodes[sessionId][streamId].transcoder.requestSegment(
+  const transcoder = transcodes[sessionId].transcoder;
+  const streamPath = getSessionStreamPath(sessionId, profileId);
+  const segmentExists = await transcodes[sessionId].transcoder.requestSegment(
     segmentNr,
     isPreloadRequest,
+    streamPath,
     width,
     videoBitrate,
     audioBitrate
@@ -62,13 +56,7 @@ export const handleStreamSegmentRequest = async (
 };
 
 export const handleSessionDeletion = async (sessionId: string) => {
-  const session = transcodes[sessionId];
-
-  if (session) {
-    for (const key in session) {
-      session[key].transcoder.destroy();
-    }
-  }
+  transcodes[sessionId]?.transcoder.destroy();
 
   delete transcodes[sessionId];
 };

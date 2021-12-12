@@ -8,7 +8,7 @@ import { VideoProbeResultType } from "./ffprobe-transformer";
 
 export class Transcoder {
   private file: string;
-  private outDir: string;
+  private outDir!: string;
   private probeData: VideoProbeResultType;
   // We need to change the directory where we transcode files
   // when the transcoder restarts, because when an ffmpeg process
@@ -34,9 +34,8 @@ export class Transcoder {
   private videoBitrate?: number;
   private audioBitrate?: number;
 
-  constructor(file: string, outDir: string, probeData: VideoProbeResultType) {
+  constructor(file: string, probeData: VideoProbeResultType) {
     this.file = file;
-    this.outDir = outDir;
     this.probeData = probeData;
   }
 
@@ -45,60 +44,55 @@ export class Transcoder {
       const dir = path.join(this.outDir, String(this.transcodeDirNumber));
       fse.ensureDirSync(dir);
 
-      if (this.watcher) {
-        this.watcher.add(dir);
-        resolve();
-      } else {
-        this.watcher = chokidar
-          .watch(dir, {
-            ignoreInitial: true,
-            // Important so that we don't send incomplete segments!
-            // We're using the default values right now, which will
-            // delay sending the segments by about 2000ms.
-            // TODO: Find more optimal values.
-            awaitWriteFinish: {
-              stabilityThreshold: 2000,
-              pollInterval: 100,
-            },
-          })
-          .on("add", async (filepath, _event) => {
-            const filename = path.basename(filepath);
-            const dir = path.dirname(filepath);
+      this.watcher = chokidar
+        .watch(dir, {
+          ignoreInitial: true,
+          // Important so that we don't send incomplete segments!
+          // We're using the default values right now, which will
+          // delay sending the segments by about 2000ms.
+          // TODO: Find more optimal values.
+          awaitWriteFinish: {
+            stabilityThreshold: 2000,
+            pollInterval: 100,
+          },
+        })
+        .on("add", async (filepath, _event) => {
+          const filename = path.basename(filepath);
+          const dir = path.dirname(filepath);
 
-            // Because of the delay caused by awaitWriteFinish,
-            // the "add" event can be fired after we started
-            // transcoding at a new point, so we need to do a check
-            // here.
-            const dirNumber = parseInt(dir.slice(dir.lastIndexOf("/") + 1));
-            if (dirNumber !== this.transcodeDirNumber) {
-              return;
-            }
+          // Because of the delay caused by awaitWriteFinish,
+          // the "add" event can be fired after we started
+          // transcoding at a new point, so we need to do a check
+          // here.
+          const dirNumber = parseInt(dir.slice(dir.lastIndexOf("/") + 1));
+          if (dirNumber !== this.transcodeDirNumber) {
+            return;
+          }
 
-            const segmentNr = parseInt(filename);
-            this.currentSegment = segmentNr + 1;
+          const segmentNr = parseInt(filename);
+          this.currentSegment = segmentNr + 1;
 
-            try {
-              const dist = path.join(dir, "..", `${segmentNr}.ts`);
+          try {
+            const dist = path.join(dir, "..", `${segmentNr}.ts`);
 
-              // The file can exist already if the client seeked forward and then
-              // back again, and then it later catches up with the buffered
-              // region later in the video. We have to re-transcode it because
-              // -ss with ffmpeg doesn't really work as expected and there will
-              // be audio issues at the very least where the 2 regions meet.
-              await fse.move(filepath, dist, { overwrite: true });
-              this.finishedSegments[segmentNr] = true;
-              this.onSegmentTranscodedCallback?.(segmentNr);
-            } catch (err) {
-              console.error(err);
-            }
-          })
-          .on("ready", resolve);
-      }
+            // The file can exist already if the client seeked forward and then
+            // back again, and then it later catches up with the buffered
+            // region later in the video. We have to re-transcode it because
+            // -ss with ffmpeg doesn't really work as expected and there will
+            // be audio issues at the very least where the 2 regions meet.
+            await fse.move(filepath, dist, { overwrite: true });
+            this.finishedSegments[segmentNr] = true;
+            this.onSegmentTranscodedCallback?.(segmentNr);
+          } catch (err) {
+            console.error(err);
+          }
+        })
+        .on("ready", resolve);
     });
   }
 
-  private disableWatcher() {
-    this.watcher?.unwatch(path.join(this.outDir, String(this.transcodeDirNumber)));
+  private async disableWatcher() {
+    await this.watcher?.close();
   }
 
   // TODO: Add video and audio bitrates
@@ -244,13 +238,20 @@ export class Transcoder {
   async requestSegment(
     segment: number,
     isPreloadRequest: boolean,
+    outDir: string,
     width: number,
     videoBitrate?: number,
     audioBitrate?: number
   ) {
     let paramsChanged = false;
-    if (width !== this.width || videoBitrate !== this.videoBitrate || audioBitrate !== this.audioBitrate) {
+    if (
+      outDir !== this.outDir ||
+      width !== this.width ||
+      videoBitrate !== this.videoBitrate ||
+      audioBitrate !== this.audioBitrate
+    ) {
       paramsChanged = true;
+      this.outDir = outDir;
       this.width = width;
       this.videoBitrate = videoBitrate;
       this.audioBitrate = audioBitrate;
@@ -285,7 +286,8 @@ export class Transcoder {
     });
 
     this.finishedSegments = {};
-    this.disableWatcher();
+
+    await this.disableWatcher();
     this.process?.kill();
     this.currentSegment = segment;
 
