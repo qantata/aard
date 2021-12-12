@@ -5,6 +5,7 @@ import { graphql, PreloadedQuery, useMutation, usePreloadedQuery } from "react-r
 import styled from "styled-components";
 
 import { VideoSession_deleteVideoStreamSessionMutation } from "./__generated__/VideoSession_deleteVideoStreamSessionMutation.graphql";
+import { usePrevious } from "../../utils/use-previous";
 
 const SeekBar = styled.div`
   width: 100%;
@@ -43,6 +44,8 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [seekPosition, setSeekPosition] = useState(-1);
   const [bufferedSegments, setBufferedSegments] = useState<number[]>([]);
+  const [currentLevel, setCurrentLevel] = useState(0);
+  const prevSeekPosition = usePrevious(seekPosition);
 
   // We need to update the segments inside a useEffect
   const bufferedSegmentsRef = useRef<number[]>();
@@ -86,14 +89,16 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
 
   useEffect(() => {
     let newHls: Hls | null = null;
+    let shouldSeek = prevSeekPosition !== seekPosition;
 
-    if (videoRef.current) {
+    if (videoRef.current && shouldSeek) {
       hls?.destroy();
 
       newHls = new Hls({
         startPosition: seekPosition,
       });
 
+      newHls.currentLevel = currentLevel;
       newHls.attachMedia(videoRef.current);
 
       newHls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -114,11 +119,7 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
       setBufferedSegments([]);
       setHls(newHls);
     }
-
-    return () => {
-      newHls?.destroy();
-    };
-  }, [seekPosition]);
+  }, [seekPosition, currentLevel]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -147,6 +148,12 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
           console.error(err);
         },
       });
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      hls?.destroy();
     };
   }, []);
 
@@ -195,10 +202,16 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
     }
 
     if (shouldSeek) {
-      console.log("Seeking to", position);
       setSeekPosition(position);
     } else {
       videoRef.current.currentTime = position;
+    }
+  };
+
+  const onLevelClick = (index: number) => {
+    if (hls) {
+      hls.currentLevel = index;
+      setCurrentLevel(index);
     }
   };
 
@@ -219,21 +232,32 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
       </video>
 
       {videoRef.current && (
-        <SeekBar ref={seekBarRef} onClick={onSeekBarClick}>
-          <SeekBarProgress style={{ width: `${(currentTime / videoRef.current.duration) * 100}%` }} />
-          {videoRef.current.buffered.length && (
-            <SeekBarBuffer
-              style={{
-                left: `${(videoRef.current.buffered.start(0) / videoRef.current.duration) * 100}%`,
-                width: `${
-                  ((videoRef.current.buffered.end(0) - videoRef.current.buffered.start(0)) /
-                    videoRef.current.duration) *
-                  100
-                }%`,
-              }}
-            />
-          )}
-        </SeekBar>
+        <>
+          <SeekBar ref={seekBarRef} onClick={onSeekBarClick}>
+            <SeekBarProgress style={{ width: `${(currentTime / videoRef.current.duration) * 100}%` }} />
+            {videoRef.current.buffered.length && (
+              <SeekBarBuffer
+                style={{
+                  left: `${(videoRef.current.buffered.start(0) / videoRef.current.duration) * 100}%`,
+                  width: `${
+                    ((videoRef.current.buffered.end(0) - videoRef.current.buffered.start(0)) /
+                      videoRef.current.duration) *
+                    100
+                  }%`,
+                }}
+              />
+            )}
+          </SeekBar>
+
+          {hls &&
+            hls.levels.map((level, index) => {
+              return (
+                <button key={`${level.width}.${level.height}.${level.bitrate}`} onClick={() => onLevelClick(index)}>
+                  {level.width}x{level.height}
+                </button>
+              );
+            })}
+        </>
       )}
     </>
   );
