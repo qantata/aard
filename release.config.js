@@ -1,22 +1,22 @@
 module.exports = {
-  "plugins":
+  plugins: [
     [
-      ["@semantic-release/commit-analyzer", {
-        "preset": "angular",
-        "parserOpts": {
-          "noteKeywords": ["Major Release", "Major release", "major release"]
-        }
-      }],
-      ["@semantic-release/release-notes-generator", {
-        "preset": "angular",
-        "parserOpts": {
-          "noteKeywords": ["Major Release", "Major release", "major release"]
-        }
-      }],
-      ["@semantic-release/github", {
-        "assets": [
-          {"path": `aard-linux-x64-${process.env.AARD_NEXT_VERSION}.tar.gz`}
-        ]
-      }]
-    ]
-}
+      "@semantic-release/commit-analyzer",
+      {
+        preset: "angular",
+        releaseRules: [
+          { type: "release-major", release: "major" },
+          { type: "release-minor", release: "minor" },
+          { type: "release-patch", release: "patch" },
+          { type: "release", release: "minor" },
+        ],
+      },
+    ],
+    [
+      "@semantic-release/github",
+      {
+        assets: [{ path: `aard-linux-x64-${process.env.AARD_NEXT_VERSION}.tar.gz` }],
+      },
+    ],
+  ],
+};
