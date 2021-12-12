@@ -1,4 +1,5 @@
-import { VideoStreamProfile } from "nexus-prisma/*";
+import fse from "fs-extra";
+
 import { VideoProbeResultType } from "./ffprobe-transformer";
 import { getSessionStreamPath } from "./paths";
 import { Transcoder } from "./transcoder";
@@ -57,6 +58,11 @@ export const handleStreamSegmentRequest = async (
 
 export const handleSessionDeletion = async (sessionId: string) => {
   transcodes[sessionId]?.transcoder.destroy();
-
   delete transcodes[sessionId];
+
+  try {
+    await fse.remove(getSessionStreamPath(sessionId));
+  } catch (err) {
+    console.error(err);
+  }
 };
