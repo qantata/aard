@@ -5,10 +5,9 @@ import * as types from "./graphql";
 
 export const schema = makeSchema({
   types,
-  shouldGenerateArtifacts: process.env.NODE_ENV === "development",
   outputs: {
     schema: path.join(process.cwd(), "schema.graphql"),
-    typegen: path.join(process.cwd(), "nexus.ts"),
+    typegen: path.join(process.cwd(), "src", "server", "nexus.d.ts"),
   },
   sourceTypes: {
     modules: [{ module: ".prisma/client", alias: "prisma" }],
@@ -20,7 +19,7 @@ export const schema = makeSchema({
   },
   nonNullDefaults: {
     input: true,
-    output: true,
+    output: false,
   },
   features: {
     abstractTypeStrategies: {

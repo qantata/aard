@@ -20,7 +20,9 @@ export default function () {
         arguments["0"] = path.join(process.cwd(), "lib/migration-engine-debian-openssl-1.1.x");
     }
 
-    arguments["2"]["cwd"] = process.cwd();
+    if (arguments["2"]) {
+      arguments["2"]["cwd"] = process.cwd();
+    }
     return origSpawn.apply(this, arguments);
   }
   childProcess.spawn = spawn;

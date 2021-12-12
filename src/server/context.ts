@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { DATABASE_URL, DEV } from "./utils/constants";
 
 const prisma = new PrismaClient({
-  log: DEV ? ["query"] : undefined,
+  log: process.env.DEBUG !== undefined ? ["query"] : undefined,
   datasources: {
     db: {
       url: `file:${DATABASE_URL}`,

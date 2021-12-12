@@ -5,6 +5,7 @@ import { RelayEnvironment } from "../relay-environment";
 import { TSResource } from "./TSResource";
 import MoviesQuery from "../pages/__generated__/MoviesQuery.graphql";
 import LibrariesQuery from "../pages/__generated__/LibrariesQuery.graphql";
+import VideoSessionQuery from "../pages/video-session/__generated__/VideoSessionQuery.graphql";
 
 export const routes: RouteConfig[] = [
   {
@@ -37,6 +38,19 @@ export const routes: RouteConfig[] = [
         prepare: (params: any) => {
           return {
             id: params.id,
+          };
+        },
+      },
+      {
+        path: "/video-session/:id",
+        exact: true,
+        component: TSResource("VideoSession", () => import("../pages/video-session/VideoSession")),
+        prepare: (params: any) => {
+          return {
+            id: params.id,
+            videoSessionQuery: loadQuery(RelayEnvironment, VideoSessionQuery, {
+              id: params.id,
+            }),
           };
         },
       },
