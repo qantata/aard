@@ -95,7 +95,6 @@ export class Transcoder {
     await this.watcher?.close();
   }
 
-  // TODO: Add video and audio bitrates
   private startTranscode() {
     const segmentDuration = 2;
     const seconds = this.currentSegment * segmentDuration;
