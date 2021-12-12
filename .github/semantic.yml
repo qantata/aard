@@ -10,6 +10,6 @@ types:
   - ci
   - chore
   - revert
-  - Major Release
-  - Major release
-  - major release
+  - release-major
+  - release-minor
+  - release-patch
