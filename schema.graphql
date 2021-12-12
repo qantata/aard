@@ -26,7 +26,6 @@ type Mutation {
   deleteLibrary(id: String!): Library
   deleteVideoStreamSession(id: String!): Boolean
   deleteVideoStreamSessions: Boolean
-  seekVideoStreamSession(clientId: String!, id: String!, profileId: String!, time: Int!): Boolean
 }
 
 input ProfileAudioCodecsInput {

@@ -1,11 +1,11 @@
-import { extendType, inputObjectType, intArg, objectType, stringArg } from "nexus";
+import { extendType, inputObjectType, objectType, stringArg } from "nexus";
 import fse from "fs-extra";
 import path from "path";
 
-import { VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
+import { VideoStreamProfile as PVideoStreamProfile, VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
 import { parseProbeDataString } from "../../utils/ffprobe-transformer";
 import { getSessionStreamPath } from "../../utils/paths";
-import { handleSessionDeletion, handleStreamSegmentRequest } from "../../utils/transcode-manager";
+import { handleSessionDeletion } from "../../utils/transcode-manager";
 
 export const VideoStreamSession = objectType({
   name: "VideoStreamSession",
@@ -157,96 +157,6 @@ export const MutationDeleteVideoStreamSession = extendType({
   },
 });
 
-// TODO: Move the manifest generation to a method
-export const MutationSeekVideoStreamSession = extendType({
-  type: "Mutation",
-  definition(t) {
-    t.field("seekVideoStreamSession", {
-      type: "Boolean",
-      args: {
-        id: stringArg(),
-        clientId: stringArg(),
-        profileId: stringArg(),
-        time: intArg(),
-      },
-      async resolve(_root, args, ctx) {
-        const session = await ctx.prisma.videoStreamSession.findUnique({
-          where: {
-            id: args.id,
-          },
-          include: {
-            file: true,
-            clients: {
-              include: {
-                profiles: true,
-              },
-            },
-          },
-        });
-
-        if (!session) {
-          console.error("Session not found");
-          return false;
-        }
-
-        const client = session.clients.find((c) => c.id === args.clientId);
-        if (!client) {
-          console.error("Session client not found");
-          return false;
-        }
-
-        const profile = client.profiles.find((p) => p.id === args.profileId);
-        if (!profile) {
-          console.error("Client profile not found");
-          return false;
-        }
-
-        const probeData = parseProbeDataString(session.file.probeData);
-        const segment = Math.floor(args.time / 2);
-
-        if (segment > 0) {
-          const segmentDuration = 3;
-          let manifest = "";
-          manifest += "#EXTM3U\n";
-          manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
-          manifest += `#EXT-X-TARGETDURATION:${segmentDuration}\n`;
-          manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
-          manifest += "#EXT-X-VERSION:3\n";
-
-          let duration = probeData.videoStreams[0].duration || probeData.containerDuration;
-          if (!duration) {
-            console.error("Duration not found");
-            return null;
-          }
-
-          let index = 0;
-          for (; duration >= segmentDuration; duration -= segmentDuration) {
-            if (index === segment) {
-              manifest += "#EXT-X-DISCONTINUITY\n";
-            }
-            manifest += `#EXTINF:${segmentDuration}.000000,\n`;
-            manifest += `${index++}.ts\n`;
-          }
-
-          if (duration > 0) {
-            manifest += `#EXTINF:${duration.toFixed(6)},\n`;
-            manifest += `${index}.ts\n`;
-          }
-
-          manifest += "#EXT-X-ENDLIST\n";
-
-          const streamDir = getSessionStreamPath(session.id, profile.id);
-          await fse.ensureDir(streamDir);
-          await fse.writeFile(path.join(streamDir, "index.m3u8"), manifest);
-        }
-
-        handleStreamSegmentRequest(session.file.path, session.id, profile.id, `${segment}.ts`, probeData);
-        return true;
-      },
-    });
-  },
-});
-
 export const MutationCreateVideoStreamSession = extendType({
   type: "Mutation",
   definition(t) {
@@ -340,56 +250,110 @@ export const MutationCreateVideoStreamSession = extendType({
           });
         }
 
-        // Transcode
-        const profile = await ctx.prisma.videoStreamProfile.create({
-          data: {
-            id: `profile${Math.random() * 1000000}`,
-            isHls: true,
-            width: probeData.videoStreams[0].width,
-            height: probeData.videoStreams[0].height,
-            videoCodec: "h264",
-            videoBitrate: probeData.videoStreams[0].bitRate,
-            audioCodec: probeData.audioStreams.length ? "aac" : undefined,
-            audioBitrate: probeData.audioStreams.length ? probeData.audioStreams[0].bitRate : undefined,
-            client: {
-              connect: {
-                id: client.id,
-              },
-            },
+        const resolutions = [
+          {
+            width: 3840,
+            bitrate: 11600,
           },
-        });
+          {
+            width: 1920,
+            bitrate: 6000,
+          },
+          {
+            width: 1280,
+            bitrate: 3000,
+          },
+          {
+            width: 960,
+            bitrate: 2000,
+          },
+          {
+            width: 854,
+            bitrate: 1100,
+          },
+          {
+            width: 640,
+            bitrate: 365,
+          },
+          {
+            width: 426,
+            bitrate: 145,
+          },
+        ];
 
-        const segmentDuration = 2;
-        let manifest = "";
-        manifest += "#EXTM3U\n";
-        manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
-        manifest += `#EXT-X-TARGETDURATION:${segmentDuration}\n`;
-        manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
-        manifest += "#EXT-X-VERSION:3\n";
+        const streamDir = getSessionStreamPath(session.id);
 
-        let duration = probeData.videoStreams[0].duration || probeData.containerDuration;
-        if (!duration) {
-          console.error("Duration not found");
-          return null;
+        let masterManifest = "";
+        masterManifest += "#EXTM3U\n";
+
+        // Transcode profiles
+        for (const res of resolutions) {
+          if (res.width <= probeData.videoStreams[0].width) {
+            const width = res.width;
+            // Keep aspect ratio
+            const height = Math.round((probeData.videoStreams[0].height / probeData.videoStreams[0].width) * res.width);
+            const videoBitrate = res.bitrate; //Math.min(probeData.videoStreams[0].bitRate, res.bitrate);
+            const audioBitrate = probeData.audioStreams.length ? probeData.audioStreams[0].bitRate : undefined;
+
+            const profile = await ctx.prisma.videoStreamProfile.create({
+              data: {
+                id: `profile${Math.random() * 1000000}`,
+                isHls: true,
+                width,
+                height,
+                videoCodec: "h264",
+                videoBitrate,
+                audioCodec: probeData.audioStreams.length ? "aac" : undefined,
+                audioBitrate,
+                client: {
+                  connect: {
+                    id: client.id,
+                  },
+                },
+              },
+            });
+
+            const profileDir = getSessionStreamPath(session.id, profile.id);
+            await fse.ensureDir(profileDir);
+
+            const segmentDuration = 2;
+            let manifest = "";
+            manifest += "#EXTM3U\n";
+            manifest += "#EXT-X-PLAYLIST-TYPE:VOD\n";
+            manifest += `#EXT-X-TARGETDURATION:${segmentDuration}\n`;
+            manifest += "#EXT-X-MEDIA-SEQUENCE:0\n";
+            manifest += "#EXT-X-VERSION:3\n";
+
+            let duration = probeData.videoStreams[0].duration || probeData.containerDuration;
+            if (!duration) {
+              console.error("Duration not found");
+              return null;
+            }
+
+            let index = 0;
+            for (; duration >= segmentDuration; duration -= segmentDuration) {
+              manifest += `#EXTINF:${segmentDuration}.000000,\n`;
+              manifest += `${index++}.ts\n`;
+            }
+
+            if (duration > 0) {
+              manifest += `#EXTINF:${duration.toFixed(6)},\n`;
+              manifest += `${index}.ts\n`;
+            }
+
+            manifest += "#EXT-X-ENDLIST\n";
+
+            await fse.writeFile(path.join(profileDir, "index.m3u8"), manifest);
+
+            // Add an additional 15% to bandwith to count for container
+            const bandwith = Math.floor((videoBitrate + (audioBitrate ?? 0)) * 1.15);
+            masterManifest += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwith},RESOLUTION=${width}x${height}\n`;
+            masterManifest += `${path.join(profileDir.replace(streamDir, ""), "index.m3u8").slice(1)}\n`;
+          }
         }
 
-        let index = 0;
-        for (; duration >= segmentDuration; duration -= segmentDuration) {
-          manifest += `#EXTINF:${segmentDuration}.000000,\n`;
-          manifest += `${index++}.ts\n`;
-        }
-
-        if (duration > 0) {
-          manifest += `#EXTINF:${duration.toFixed(6)},\n`;
-          manifest += `${index}.ts\n`;
-        }
-
-        manifest += "#EXT-X-ENDLIST\n";
-
-        const streamDir = getSessionStreamPath(session.id, profile.id);
         await fse.ensureDir(streamDir);
-        await fse.writeFile(path.join(streamDir, "index.m3u8"), manifest);
-        await handleStreamSegmentRequest(session.file.path, session.id, profile.id, "0", probeData);
+        await fse.writeFile(path.join(streamDir, "index.m3u8"), masterManifest);
 
         return session;
       },

@@ -30,6 +30,10 @@ export class Transcoder {
   private watcher: chokidar.FSWatcher | null = null;
   private onSegmentTranscodedCallback: ((segment: number) => void) | null = null;
 
+  private width?: number;
+  private videoBitrate?: number;
+  private audioBitrate?: number;
+
   constructor(file: string, outDir: string, probeData: VideoProbeResultType) {
     this.file = file;
     this.outDir = outDir;
@@ -153,6 +157,18 @@ export class Transcoder {
       "41",
     ];
 
+    if (this.width) {
+      args = [...args, "-vf", `scale=${this.width}:-2`];
+    }
+
+    if (this.videoBitrate) {
+      args = [...args, "-b:v", `${this.videoBitrate}`];
+    }
+
+    if (this.audioBitrate) {
+      args = [...args, "-b:a", `${this.audioBitrate}`];
+    }
+
     // Key interval - this is important when seeking
     if (this.probeData.videoStreams[0].fps) {
       const keyint = Math.ceil(this.probeData.videoStreams[0].fps * segmentDuration);
@@ -163,9 +179,6 @@ export class Transcoder {
       ...args,
       "-force_key_frames",
       `expr:gte(t,${this.currentSegment}+n_forced*${segmentDuration})`,
-      // TODO: Resolution based on profile
-      "-vf",
-      "scale=1920:-2",
       // Needed for seeking
       "-start_at_zero",
       // Not sure if needed
@@ -228,25 +241,48 @@ export class Transcoder {
   /**
    * @returns {boolean} True if segment already exists, false otherwise
    */
-  async requestSegment(segment: number, isPreloadRequest: boolean) {
-    const isNextSegment = segment === this.nextSegment;
-    const isInProcessSegment = segment >= this.currentSegment && segment < this.nextSegment;
-
-    if (isNextSegment) {
-      this.nextSegment++;
+  async requestSegment(
+    segment: number,
+    isPreloadRequest: boolean,
+    width: number,
+    videoBitrate?: number,
+    audioBitrate?: number
+  ) {
+    let paramsChanged = false;
+    if (width !== this.width || videoBitrate !== this.videoBitrate || audioBitrate !== this.audioBitrate) {
+      paramsChanged = true;
+      this.width = width;
+      this.videoBitrate = videoBitrate;
+      this.audioBitrate = audioBitrate;
     }
 
-    if (this.finishedSegments[segment]) {
-      return true;
+    // If params changed, skip these checks so that we restart transcoder
+    if (!paramsChanged) {
+      const isNextSegment = segment === this.nextSegment;
+      const isInProcessSegment = segment >= this.currentSegment && segment < this.nextSegment;
+
+      if (isNextSegment) {
+        this.nextSegment++;
+      }
+
+      if (this.finishedSegments[segment]) {
+        return true;
+      }
+
+      if (isNextSegment) {
+        return false;
+      }
+
+      if (isInProcessSegment) {
+        return false;
+      }
     }
 
-    if (isNextSegment) {
-      return false;
-    }
-
-    if (isInProcessSegment) {
-      return false;
-    }
+    console.log({
+      width,
+      videoBitrate,
+      audioBitrate,
+    });
 
     this.finishedSegments = {};
     this.disableWatcher();

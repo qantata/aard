@@ -97,7 +97,7 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
       newHls.attachMedia(videoRef.current);
 
       newHls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        newHls?.loadSource(`http://localhost:5004/data/session/${prepared.id}/stream/${profile!.id}/index.m3u8`);
+        newHls?.loadSource(`http://localhost:5004/data/session/${prepared.id}/index.m3u8`);
 
         newHls?.on(Hls.Events.MANIFEST_PARSED, () => {
           newHls?.startLoad(-1);

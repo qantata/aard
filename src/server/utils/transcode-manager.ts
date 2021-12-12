@@ -1,3 +1,4 @@
+import { VideoStreamProfile } from "nexus-prisma/*";
 import { VideoProbeResultType } from "./ffprobe-transformer";
 import { getSessionStreamPath } from "./paths";
 import { Transcoder } from "./transcoder";
@@ -18,6 +19,9 @@ export const handleStreamSegmentRequest = async (
   streamId: string,
   segment: string,
   probeData: VideoProbeResultType,
+  width: number,
+  videoBitrate?: number,
+  audioBitrate?: number,
   isPreloadRequest: boolean = false
 ) => {
   const streamPath = getSessionStreamPath(sessionId, streamId);
@@ -35,7 +39,13 @@ export const handleStreamSegmentRequest = async (
 
   const segmentNr = parseInt(segment);
   const transcoder = transcodes[sessionId][streamId].transcoder;
-  const segmentExists = await transcodes[sessionId][streamId].transcoder.requestSegment(segmentNr, isPreloadRequest);
+  const segmentExists = await transcodes[sessionId][streamId].transcoder.requestSegment(
+    segmentNr,
+    isPreloadRequest,
+    width,
+    videoBitrate,
+    audioBitrate
+  );
 
   if (segmentExists) {
     return;

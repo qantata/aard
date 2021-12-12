@@ -128,7 +128,21 @@ const createServer = async () => {
     }
   });
 
-  app.get("/data/session/:sessionid/stream/:streamid/:file", async (req, res) => {
+  app.get("/data/session/:sessionid/:file", async (req, res) => {
+    const session = await context().prisma.videoStreamSession.findUnique({
+      where: {
+        id: req.params.sessionid,
+      },
+    });
+
+    if (!session) {
+      res.status(404).send();
+    } else {
+      res.sendFile(path.join(getSessionStreamPath(session.id), req.params.file));
+    }
+  });
+
+  app.get("/data/session/:sessionid/streams/:streamid/:file", async (req, res) => {
     const session = await context().prisma.videoStreamSession.findUnique({
       where: {
         id: req.params.sessionid,
@@ -159,7 +173,10 @@ const createServer = async () => {
         session.id,
         profile.id,
         req.params.file,
-        parseProbeDataString(session.file.probeData)
+        parseProbeDataString(session.file.probeData),
+        profile.width,
+        profile.videoBitrate,
+        profile.audioBitrate || undefined
       );
 
       const segmentFilepath = getSessionStreamPath(session.id, profile.id, req.params.file);
