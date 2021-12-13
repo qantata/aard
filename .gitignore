@@ -4,7 +4,7 @@ dist
 dist-ssr
 *.local
 yarn-error.log
-src/server/nexus.d.ts
-**/__generated__/**
-prisma/seed.ts
+apps/server/src/nexus.d.ts
+apps/server/prisma/seed.ts
+apps/web/**/__generated__/**
 lib/

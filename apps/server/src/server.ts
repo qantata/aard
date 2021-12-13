@@ -47,6 +47,7 @@ const createServer = async () => {
 
   // Vite server
   const vite = await createViteServer({
+    root: "../web",
     server: {
       // Need proxy so we can have a reachable API (Vite uses all the routes)
       proxy: {
@@ -157,7 +158,7 @@ const createServer = async () => {
       },
     });
 
-    const profile = session?.clients[0].profiles.find((p) => p.id === req.params.streamid);
+    const profile = session?.clients[0].profiles.find((p: any) => p.id === req.params.streamid);
 
     if (!session || !profile) {
       res.status(404).send();

@@ -2,104 +2,17 @@
   "name": "aard",
   "version": "0.0.0-development",
   "private": true,
-  "bin": "dist/server.js",
   "license": "AGPL-3.0",
   "scripts": {
-    "dev": "NODE_ENV=development ts-node-dev --transpile-only --tree-kill --project tsconfig.server.json src/server/server.ts",
-    "gen-prod-env": "AARD_NEXT_VERSION=$AARD_NEXT_VERSION ts-node --project tsconfig.server.json scripts/prebuild.ts",
-    "fix-nexus-prisma": "ts-node --project tsconfig.server.json scripts/fix-nexus-prisma.ts",
-    "build": "yarn gen-prod-env && yarn fix-nexus-prisma && vite build && tsc --project tsconfig.server.json",
-    "build:local": "yarn gen-prod-env && vite build && tsc --project tsconfig.server.json",
-    "build:full": "yarn build && npx pkg . && yarn bundle && yarn clean",
-    "bundle": "mkdir bundle && yarn copy-bundle-binaries && cd bundle && mv ../aard . && mv ../dist/index.html . && mv ../dist/assets . && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
-    "copy-bundle-binaries": "cd bundle && mkdir lib && cp ../node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../node_modules/esbuild-linux-64/bin/esbuild lib",
-    "clean": "rm -rf dist && rm .env",
-    "tar": "cd bundle && tar -czvf ../aard-linux-x64-$AARD_NEXT_VERSION.tar.gz *",
-    "serve": "vite preview",
-    "p:generate": "dotenv -c development -- npx prisma generate",
-    "p:migrate": "dotenv -c development -- npx prisma migrate dev --name init",
-    "p:push": "dotenv -c development -- npx prisma db push",
-    "p:seed": "dotenv -c development -- npx prisma db seed",
-    "p:studio": "dotenv -c development -- npx prisma studio",
-    "relay": "relay-compiler --src ./src/client --schema ./schema.graphql --language typescript",
-    "localci": "rm -rf ../release && rm -rf bundle && yarn build:full && mv bundle ../release && cd ../release",
-    "postinstall": "yarn p:generate && yarn relay"
-  },
-  "dependencies": {
-    "@ctrl/video-filename-parser": "3.x",
-    "@fontsource/roboto": "^4.5.1",
-    "@mui/icons-material": "^5.1.1",
-    "@mui/material": "^5.1.1",
-    "@mui/styled-engine": "^5.1.0",
-    "@mui/styled-engine-sc": "^5.1.0",
-    "@prisma/client": "^3.5.0",
-    "@prisma/migrate": "^3.5.0",
-    "@prisma/sdk": "^3.5.0",
-    "apollo-server-express": "^3.5.0",
-    "bottleneck": "^2.19.5",
-    "chokidar": "^3.5.2",
-    "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "fs-extra": "^10.0.0",
-    "graphql": "15.x",
-    "hls.js": "^1.1.1",
-    "klaw": "^4.0.1",
-    "mux.js": "^6.0.0",
-    "nexus": "^1.1.0",
-    "nexus-prisma": "0.34.0",
-    "react": "^18.0.0-beta-4ff5f5719-20211115",
-    "react-dom": "^18.0.0-beta-4ff5f5719-20211115",
-    "react-relay": "^12.0.0",
-    "react-router": "5.x",
-    "react-router-config": "^5.1.1",
-    "relay-runtime": "^12.0.0",
-    "styled-components": "^5.3.3",
-    "subscriptions-transport-ws": "^0.11.0",
-    "through2": "^4.0.2",
-    "ws": "^8.2.3"
+    "delete-deps": "rm -rf apps/*/node_modules && rm -rf packages/*/node_modules"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
     "@semantic-release/commit-analyzer": "^9.0.1",
     "@semantic-release/github": "^8.0.2",
-    "@types/express": "^4.17.13",
-    "@types/fs-extra": "^9.0.13",
-    "@types/klaw": "^3.0.3",
-    "@types/node": "^16.11.11",
-    "@types/react": "^17.0.35",
-    "@types/react-dom": "^17.0.11",
-    "@types/react-relay": "^11.0.2",
-    "@types/react-router-config": "^5.0.3",
-    "@types/relay-runtime": "^12.0.0",
-    "@types/styled-components": "^5.1.15",
-    "@types/through2": "^2.0.36",
-    "@types/ws": "^8.2.0",
-    "@vitejs/plugin-react": "^1.0.0",
-    "babel-plugin-relay": "^12.0.0",
-    "dotenv-cli": "^4.1.0",
-    "prisma": "^3.5.0",
-    "relay-compiler": "^12.0.0",
-    "relay-compiler-language-typescript": "^14.3.0",
-    "relay-config": "^12.0.0",
-    "semantic-release": "^18.0.0",
-    "ts-node": "^10.4.0",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^4.3.2",
-    "vite": "^2.6.4"
+    "semantic-release": "^18.0.0"
   },
-  "resolutions": {
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
-  "pkg": {
-    "assets": [
-      ".env"
-    ],
-    "targets": [
-      "node16-linux-x64"
-    ]
-  }
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
