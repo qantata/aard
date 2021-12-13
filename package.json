@@ -22,6 +22,7 @@
     "p:seed": "dotenv -c development -- npx prisma db seed",
     "p:studio": "dotenv -c development -- npx prisma studio",
     "relay": "relay-compiler --src ./src/client --schema ./schema.graphql --language typescript",
+    "localci": "rm -rf ../release && rm -rf bundle && yarn build:full && mv bundle ../release && cd ../release",
     "postinstall": "yarn p:generate && yarn relay"
   },
   "dependencies": {
