@@ -1,6 +1,6 @@
 ---
-"@aard/server": minor
-"@aard/web": minor
+"server": minor
+"web": minor
 ---
 
 Initial release using changesets & turborepo
