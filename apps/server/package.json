@@ -1,0 +1,70 @@
+{
+  "name": "@aard/server",
+  "version": "0.0.1",
+  "private": true,
+  "bin": "dist/server.js",
+  "scripts": {
+    "dev": "NODE_ENV=development ts-node-dev --transpile-only --tree-kill src/server.ts",
+    "gen-prod-env": "AARD_NEXT_VERSION=$npm_package_version ts-node scripts/prebuild.ts",
+    "fix-nexus-prisma": "ts-node scripts/fix-nexus-prisma.ts",
+    "build": "yarn gen-prod-env && yarn fix-nexus-prisma && tsc && yarn package && yarn bundle",
+    "tar": "cd bundle && tar -czvf ../aard-linux-x64-$npm_package_version.tar.gz *",
+    "release": "bash ../../packages/utils/scripts/release.sh server aard-linux-x64-$npm_package_version.tar.gz",
+    "package": "npx pkg .",
+    "bundle": "mkdir bundle && yarn copy-bundle-binaries && cd bundle && mv ../server aard && mv ../../web/dist/index.html . && mv ../../web/dist/assets . && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
+    "copy-bundle-binaries": "cd bundle && mkdir lib && cp ../../../node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../../../node_modules/esbuild-linux-64/bin/esbuild lib",
+    "clean": "rm -rf dist && rm .env",
+    "p:generate": "dotenv -c development -- npx prisma generate",
+    "p:migrate": "dotenv -c development -- npx prisma migrate dev --name init",
+    "p:push": "dotenv -c development -- npx prisma db push",
+    "p:seed": "dotenv -c development -- npx prisma db seed",
+    "p:studio": "dotenv -c development -- npx prisma studio",
+    "localci": "rm -rf ../../../release && rm -rf bundle && yarn build:full && mv bundle ../../../release && cd ../../../release",
+    "postinstall": "yarn p:generate"
+  },
+  "dependencies": {
+    "@aard/web": "^0.1.0",
+    "@ctrl/video-filename-parser": "3.x",
+    "@prisma/client": "^3.5.0",
+    "@prisma/migrate": "^3.5.0",
+    "@prisma/sdk": "^3.5.0",
+    "apollo-server-express": "^3.5.0",
+    "bottleneck": "^2.19.5",
+    "chokidar": "^3.5.2",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "fs-extra": "^10.0.0",
+    "graphql": "15.x",
+    "klaw": "^4.0.1",
+    "nexus": "^1.1.0",
+    "nexus-prisma": "0.34.0",
+    "through2": "^4.0.2",
+    "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "@aard/utils": "*",
+    "@types/express": "^4.17.13",
+    "@types/fs-extra": "^9.0.13",
+    "@types/klaw": "^3.0.3",
+    "@types/node": "^16.11.11",
+    "@types/ws": "^8.2.0",
+    "dotenv-cli": "^4.1.0",
+    "prisma": "^3.5.0",
+    "ts-node": "^10.4.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.3.2",
+    "vite": "^2.7.2"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "pkg": {
+    "assets": [
+      ".env"
+    ],
+    "targets": [
+      "node16-linux-x64"
+    ]
+  }
+}

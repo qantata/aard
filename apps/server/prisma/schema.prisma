@@ -1,0 +1,72 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
+
+model Library {
+  id   String @id
+  root String
+
+  movies Movie[]
+}
+
+model Movie {
+  id        String      @id
+  title     String
+  year      Int?
+  files     VideoFile[]
+  library   Library     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  libraryId String
+}
+
+model VideoFile {
+  id           String @id
+  path         String
+  rawProbeData String
+  probeData    String
+  movie        Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId      String
+
+  streamSessions VideoStreamSession[]
+}
+
+model VideoStreamProfile {
+  id           String  @id
+  isHls        Boolean
+  width        Int
+  height       Int
+  container    String?
+  videoCodec   String
+  videoBitrate Int
+  audioCodec   String?
+  audioBitrate Int?
+
+  client   VideoStreamSessionClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+}
+
+model VideoStreamSessionClient {
+  id                   String             @id
+  isOwner              Boolean
+  videoStreamSession   VideoStreamSession @relation(fields: [videoStreamSessionId], references: [id], onDelete: Cascade)
+  videoStreamSessionId String
+
+  profiles VideoStreamProfile[]
+}
+
+model VideoStreamSession {
+  id     String    @id
+  file   VideoFile @relation(fields: [fileId], references: [id])
+  fileId String
+
+  clients VideoStreamSessionClient[]
+}
