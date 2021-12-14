@@ -48,7 +48,7 @@ shift
 
 # Need to pass -p to pre-releases
 if [[ $VERSION =~ "next" || $VERSION =~ "alpha" || $VERSION =~ "beta" || $VERSION =~ "rc" ]]; then
-  gh release create "$TAG" -p -t "$TAG" -n notes "$@"
+  gh release create "$TAG" -p -t "$TAG" -n "$notes" "$@"
 else
-  gh release create "$TAG" -t "$TAG" -n notes "$@"
+  gh release create "$TAG" -t "$TAG" -n "$notes" "$@"
 fi
