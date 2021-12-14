@@ -25,8 +25,5 @@ jobs:
       - name: Install pkg
         run: npm install -g pkg
 
-      - name: Build
-        run: yarn build
-
       - name: Run pipeline
         run: npx turbo run build tar release
