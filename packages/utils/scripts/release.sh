@@ -39,7 +39,7 @@ do
   fi
 
   if [ $is_copying_notes == true ]; then
-    notes+="$line"
+    notes+="$line\n"
   fi
 done < "./CHANGELOG.md"
 
