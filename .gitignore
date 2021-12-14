@@ -8,3 +8,4 @@ apps/server/src/nexus.d.ts
 apps/server/prisma/seed.ts
 apps/web/**/__generated__/**
 lib/
+.turbo

@@ -7,12 +7,32 @@
     "delete-deps": "rm -rf apps/*/node_modules && rm -rf packages/*/node_modules"
   },
   "devDependencies": {
-    "@semantic-release/commit-analyzer": "^9.0.1",
-    "@semantic-release/github": "^8.0.2",
-    "semantic-release": "^18.0.0"
+    "@changesets/cli": "^2.18.1",
+    "turbo": "^1.0.9"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "turbo": {
+    "baseBranch": "origin/master",
+    "pipeline": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "tar": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "release": {
+        "dependsOn": [
+          "build",
+          "tar"
+        ]
+      }
+    }
+  }
 }

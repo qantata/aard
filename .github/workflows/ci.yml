@@ -1,11 +1,11 @@
+# Main CI for the project.
+# Releases all apps that are waiting on new versions as long as build & other steps succeed.
 name: CI
 
 on:
   push:
     branches:
       - master
-      - beta
-      - alpha
 
 jobs:
   linux:
@@ -22,28 +22,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Load next version into an environment variable
-        run: |
-          npx semantic-release -d | grep -oP 'Published release \K.*? ' >> .next-version
-          echo "AARD_NEXT_VERSION=$(cat .next-version | xargs)" >> $GITHUB_ENV
-          rm .next-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install pkg
+        run: npm install -g pkg
 
       - name: Build
         run: yarn build
 
-      - name: Install and run pkg
-        run: |
-          npm install -g pkg
-          pkg .
-
-      - name: Bundle and create tarball
-        run: |
-          yarn bundle
-          yarn tar
-
-      - name: Release
-        run: npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run pipeline
+        run: npx turbo run build tar release

@@ -1,14 +1,17 @@
 {
   "name": "@aard/web",
-  "version": "0.0.0-development",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "vite build",
+    "tar": "cd dist && tar -czvf ../aard-web-$npm_package_version.tar.gz *",
+    "release": "bash ../../packages/utils/scripts/release.sh server aard-web-$npm_package_version.tar.gz",
     "relay": "relay-compiler --src ./src --schema ../server/schema.graphql --language typescript",
     "postinstall": "yarn relay"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
     "@mui/icons-material": "^5.1.1",
     "@mui/material": "^5.1.1",
@@ -26,6 +29,7 @@
     "subscriptions-transport-ws": "^0.11.0"
   },
   "devDependencies": {
+    "@aard/utils": "*",
     "@babel/core": "^7.16.0",
     "@types/react": "^17.0.35",
     "@types/react-dom": "^17.0.11",

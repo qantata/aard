@@ -1,20 +1,19 @@
 {
   "name": "@aard/server",
-  "version": "0.0.0-development",
+  "version": "0.0.1",
   "private": true,
   "bin": "dist/server.js",
   "scripts": {
     "dev": "NODE_ENV=development ts-node-dev --transpile-only --tree-kill src/server.ts",
-    "gen-prod-env": "AARD_NEXT_VERSION=$AARD_NEXT_VERSION ts-node scripts/prebuild.ts",
+    "gen-prod-env": "AARD_NEXT_VERSION=$npm_package_version ts-node scripts/prebuild.ts",
     "fix-nexus-prisma": "ts-node scripts/fix-nexus-prisma.ts",
-    "build": "yarn gen-prod-env && yarn fix-nexus-prisma && yarn build:web && tsc",
-    "build:web": "yarn workspace @aard/web build",
-    "build:local": "yarn gen-prod-env && yarn build:web && tsc",
-    "build:full": "yarn build && npx pkg . && yarn bundle && yarn clean",
+    "build": "yarn gen-prod-env && yarn fix-nexus-prisma && tsc && yarn package && yarn bundle",
+    "tar": "cd bundle && tar -czvf ../aard-linux-x64-$npm_package_version.tar.gz *",
+    "release": "bash ../../packages/utils/scripts/release.sh server aard-linux-x64-$npm_package_version.tar.gz",
+    "package": "npx pkg .",
     "bundle": "mkdir bundle && yarn copy-bundle-binaries && cd bundle && mv ../server aard && mv ../../web/dist/index.html . && mv ../../web/dist/assets . && mkdir prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
     "copy-bundle-binaries": "cd bundle && mkdir lib && cp ../../../node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib && cp ../../../node_modules/esbuild-linux-64/bin/esbuild lib",
     "clean": "rm -rf dist && rm .env",
-    "tar": "cd bundle && tar -czvf ../aard-linux-x64-$AARD_NEXT_VERSION.tar.gz *",
     "p:generate": "dotenv -c development -- npx prisma generate",
     "p:migrate": "dotenv -c development -- npx prisma migrate dev --name init",
     "p:push": "dotenv -c development -- npx prisma db push",
@@ -24,6 +23,7 @@
     "postinstall": "yarn p:generate"
   },
   "dependencies": {
+    "@aard/web": "^0.1.0",
     "@ctrl/video-filename-parser": "3.x",
     "@prisma/client": "^3.5.0",
     "@prisma/migrate": "^3.5.0",
@@ -43,6 +43,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@aard/utils": "*",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.13",
     "@types/klaw": "^3.0.3",
