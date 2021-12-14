@@ -7,14 +7,14 @@ export const schema = makeSchema({
   types,
   outputs: {
     schema: path.join(process.cwd(), "schema.graphql"),
-    typegen: path.join(process.cwd(), "src", "server", "nexus.d.ts"),
+    typegen: path.join(process.cwd(), "src", "nexus.d.ts"),
   },
   sourceTypes: {
     modules: [{ module: ".prisma/client", alias: "prisma" }],
     debug: process.env.NODE_ENV === "development",
   },
   contextType: {
-    module: path.join(process.cwd(), "src", "server", "context.ts"),
+    module: path.join(process.cwd(), "src", "context.ts"),
     export: "Context",
   },
   nonNullDefaults: {

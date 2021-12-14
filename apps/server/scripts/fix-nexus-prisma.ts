@@ -36,7 +36,7 @@ import fs from "fs";
     ...models,
   }\n`;
 
-  fs.writeFileSync("node_modules/nexus-prisma/dist-cjs/runtime/index.js", str);
+  fs.writeFileSync("../../node_modules/nexus-prisma/dist-cjs/runtime/index.js", str);
 })();
 
 export {};
