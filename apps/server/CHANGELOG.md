@@ -1,5 +1,11 @@
 # server
 
+## 0.1.3
+
+### Patch Changes
+
+- [#54](https://github.com/qantata/aard/pull/54) [`08ef735`](https://github.com/qantata/aard/commit/08ef735cecbbacd0f270149e44a2fb33d581a369) Thanks [@qantata](https://github.com/qantata)! - fix: use proper paths for prisma client in packaged app
+
 ## 0.1.2
 
 ### Patch Changes
