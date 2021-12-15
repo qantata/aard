@@ -1,5 +1,11 @@
 # server
 
+## 0.1.2
+
+### Patch Changes
+
+- [#52](https://github.com/qantata/aard/pull/52) [`7132079`](https://github.com/qantata/aard/commit/7132079dc4c6323c0aa58687a1b4d30c80a08449) Thanks [@qantata](https://github.com/qantata)! - fix: properly load prisma libquery binary in packaged app
+
 ## 0.1.1
 
 ### Patch Changes
