@@ -14,9 +14,11 @@
   "turbo": {
     "baseBranch": "origin/master",
     "pipeline": {
+      "clean": {},
       "build": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "clean"
         ]
       },
       "tar": {

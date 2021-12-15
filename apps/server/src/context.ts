@@ -1,4 +1,4 @@
-import { PrismaClient } from "../prisma/generated";
+import { PrismaClient } from "../node_modules/.prisma/client";
 
 import { DATABASE_URL } from "./utils/constants";
 

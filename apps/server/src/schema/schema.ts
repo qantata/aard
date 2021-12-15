@@ -5,8 +5,8 @@ import { IS_PKG, PKG_SERVER_DIR } from "../utils/constants";
 import * as types from "./graphql";
 
 const sourceTypesPath = IS_PKG
-  ? path.join(PKG_SERVER_DIR, "prisma", "generated", "index.d.ts")
-  : path.join(process.cwd(), "prisma", "generated", "index.d.ts");
+  ? path.join(PKG_SERVER_DIR, "node_modules", ".prisma", "client", "index.d.ts")
+  : path.join(process.cwd(), "node_modules", ".prisma", "client", "index.d.ts");
 
 export const schema = makeSchema({
   types,
