@@ -16,9 +16,6 @@ export default function () {
       case `./lib/migration-engine-debian-openssl-1.1.x`:
         arguments["0"] = path.join(process.cwd(), "lib/migration-engine-debian-openssl-1.1.x");
         break;
-      case `./lib/libquery_engine-debian-openssl-1.1.x.so.node`:
-        arguments["0"] = path.join(process.cwd(), "lib/libquery_engine-debian-openssl-1.1.x.so.node");
-        break;
     }
 
     if (arguments["2"]) {

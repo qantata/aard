@@ -31,6 +31,6 @@ jobs:
         run: pnpm install -g pkg
 
       - name: Run pipeline
-        run: pnpx turbo run build tar release
+        run: pnpx turbo run clean build tar release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
