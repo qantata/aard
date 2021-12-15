@@ -46,9 +46,12 @@ done < "./CHANGELOG.md"
 # Remove the app name from args beacuse we want to pass the files directly to gh release
 shift
 
+# Release notes doesn't parse \n correctly so we have to use this workaround
+echo -e "$notes" > notes.md
+
 # Need to pass -p to pre-releases
 if [[ $VERSION =~ "next" || $VERSION =~ "alpha" || $VERSION =~ "beta" || $VERSION =~ "rc" ]]; then
-  gh release create "$TAG" -p -t "$TAG" -n "$notes" "$@"
+  gh release create "$TAG" -p -t "$TAG" --notes-file notes.md "$@"
 else
-  gh release create "$TAG" -t "$TAG" -n "$notes" "$@"
+  gh release create "$TAG" -t "$TAG" --notes-file notes.md "$@"
 fi
