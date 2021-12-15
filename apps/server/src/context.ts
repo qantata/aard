@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../prisma/generated";
 
-import { DATABASE_URL, DEV } from "./utils/constants";
+import { DATABASE_URL } from "./utils/constants";
 
 const prisma = new PrismaClient({
   log: process.env.DEBUG !== undefined ? ["query"] : undefined,

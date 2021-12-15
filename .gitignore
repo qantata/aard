@@ -3,9 +3,10 @@ node_modules
 dist
 dist-ssr
 *.local
-yarn-error.log
 apps/server/src/nexus.d.ts
 apps/server/prisma/seed.ts
+apps/server/prisma/generated
 apps/web/**/__generated__/**
 lib/
 .turbo
+.pnpm-debug.log

@@ -7,7 +7,7 @@ const config = () => {
   // Need to set here and not .env file because it uses os.homedir()
   process.env.DATABASE_URL = `file:${DATABASE_URL}`;
 
-  const BASE = IS_PKG ? "/snapshot/aard" : ".";
+  const BASE = IS_PKG ? "/snapshot/aard/apps/server" : ".";
 
   dotenv.config({
     path: `${BASE}/.env`,
