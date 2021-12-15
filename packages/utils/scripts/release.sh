@@ -1,6 +1,6 @@
 if [ -z "$1" ]; then
   echo "Usage: release.sh <app> [<files>...]"
-  exit 1
+  exit 0
 fi
 
 PKG="$1"
@@ -8,7 +8,7 @@ VERSION=$(node -p -e "require('./package.json').version")
 TAG="$1-$VERSION"
 
 # If the release already exist, we don't want to release
-[[ $(gh release view $TAG 2>&1) == "release not found" ]] || exit 1
+[[ $(gh release view $TAG 2>&1) == "release not found" ]] || exit 0
 
 notes=""
 is_copying_notes=false
@@ -17,7 +17,7 @@ CHANGELOG_PATH="./CHANGELOG.md"
 
 if [ ! -f "$CHANGELOG_PATH" ]; then
   echo "CHANGELOG does not exist."
-  exit 1
+  exit 0
 fi
 
 # Copy release notes from CHANGELOG
