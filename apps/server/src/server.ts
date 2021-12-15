@@ -18,7 +18,7 @@ import { execute, subscribe } from "graphql";
 import { context } from "./context";
 import { schema } from "./schema/schema";
 import { applyPrismaMiddleware } from "./middleware";
-import { DEV, VERSION } from "./utils/constants";
+import { DEV, IS_PKG, VERSION } from "./utils/constants";
 import { migrateDb } from "./utils/migrate-db";
 import { updateFfmpegCache } from "./utils/ffmpeg-cache";
 import { handleStreamSegmentRequest } from "./utils/transcode-manager";
@@ -47,7 +47,7 @@ const createServer = async () => {
 
   // Vite server
   const vite = await createViteServer({
-    root: "../web",
+    root: IS_PKG ? undefined : "../web",
     server: {
       // Need proxy so we can have a reachable API (Vite uses all the routes)
       proxy: {

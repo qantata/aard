@@ -13,7 +13,7 @@ import { DATABASE_URL } from "./constants";
  * https://github.com/prisma/prisma/issues/4703
  */
 export const migrateDb = async () => {
-  const schemaPath = path.join(process.cwd(), "prisma/schema.prisma");
+  const schemaPath = path.join(process.cwd(), "prisma", "schema.prisma");
 
   const migrate = new Migrate(schemaPath);
   await fse.ensureFile(DATABASE_URL);
