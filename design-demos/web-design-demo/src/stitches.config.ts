@@ -1,0 +1,85 @@
+import { createStitches } from "@stitches/react";
+import { sky, slate } from "@radix-ui/colors";
+
+export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, config } = createStitches({
+  theme: {
+    colors: {
+      ...sky,
+      ...slate,
+
+      // Accent "blue" color
+      accent1: "$sky1",
+      accent2: "$sky2",
+      accent3: "$sky3",
+      accent4: "$sky4",
+      accent5: "$sky5",
+      accent6: "$sky6",
+      accent7: "$sky7",
+      accent8: "$sky8",
+      accent9: "$sky9",
+      accent10: "$sky10",
+      accent11: "$sky11",
+      accent12: "$sky12",
+
+      accentBg: "$accent1",
+      accentBgSubtle: "$accent2",
+      accentUIBg: "$accent3",
+      accentUIBgHover: "$accent4",
+      accentUIBgActive: "$accent5",
+      accentBorderSubtle: "$accent6",
+      accentBorder: "$accent7",
+      accentBorderHover: "$accent8",
+      accentBgSolid: "$accent9",
+      accentBgSolidHover: "$accent10",
+      accentTextSecondary: "$accent11",
+      accentTextPrimary: "$accent12",
+
+      // Grays
+      gray1: "$slate1",
+      gray2: "$slate2",
+      gray3: "$slate3",
+      gray4: "$slate4",
+      gray5: "$slate5",
+      gray6: "$slate6",
+      gray7: "$slate7",
+      gray8: "$slate8",
+      gray9: "$slate9",
+      gray10: "$slate10",
+      gray11: "$slate11",
+      gray12: "$slate12",
+
+      grayBgSubtle: "$gray1",
+      grayBg: "$gray2",
+      grayUIBg: "$gray3",
+      grayUIBgHover: "$gray4",
+      grayUIBgActive: "$gray5",
+      grayBorderSubtle: "$gray6",
+      grayBorder: "$gray7",
+      grayBorderHover: "$gray8",
+      grayBgSolid: "$gray9",
+      grayBgSolidHover: "$gray10",
+      grayTextSecondary: "$gray11",
+      grayTextPrimary: "$gray12",
+    },
+    fonts: {
+      primary: "Inter",
+    },
+    fontSizes: {
+      10: "0.625rem",
+      12: "0.75rem",
+      13: "0.8125rem",
+      14: "0.875rem",
+      16: "1rem",
+      18: "1.125rem",
+      20: "1.25rem",
+      22: "1.375rem",
+      24: "1.5rem",
+      32: "2rem",
+      40: "2.5rem",
+      48: "3rem",
+    },
+    sizes: {
+      contentTopMargin: "100px",
+    },
+  },
+});
