@@ -1,15 +1,21 @@
-import { useState } from "react";
+import { useContext } from "react";
 
 import { ContentPageSubtitle, ContentPageTitle } from "../../components/ContentPage";
 import { Divider } from "../../components/Divider";
 import { Select } from "../../components/Select";
-import { SettingsSubtitle } from "../../components/SettingsSubtitle";
+import { ThemeContext, ThemeContextType } from "../../context/themeContext";
 import { styled } from "../../stitches.config";
 
 const Container = styled("div");
 
 const General = () => {
-  const [theme, setTheme] = useState("Light");
+  const theme = useContext(ThemeContext);
+
+  const onThemeChange = (newTheme: ThemeContextType["theme"]) => {
+    theme.setTheme(newTheme);
+  };
+
+  const themeOptions: ThemeContextType["theme"][] = ["Light", "Dark"];
 
   return (
     <Container>
@@ -19,7 +25,11 @@ const General = () => {
       <Divider />
 
       <div>
-        <Select options={["Light", "Dark"]} value={theme} onChange={setTheme} />
+        <Select
+          options={themeOptions}
+          value={theme.theme}
+          onChange={(newTheme: string) => onThemeChange(newTheme as ThemeContextType["theme"])}
+        />
       </div>
     </Container>
   );

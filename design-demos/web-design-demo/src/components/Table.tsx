@@ -224,8 +224,10 @@ export const TableCheckboxCell: React.FC<CellStateProps> = ({ cell, state }) => 
 
 const StyledTable = styled("table", {
   boxShadow: "0 0 0 1px $colors$grayBorderSubtle",
-  borderRadius: "12px",
+  borderRadius: "6px",
   borderCollapse: "collapse",
+  backgroundColor: "$grayBgSubtle",
+  color: "$grayTextPrimary",
 });
 
 export const Table = (props: any) => {

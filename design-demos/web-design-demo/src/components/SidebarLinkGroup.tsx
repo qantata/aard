@@ -19,14 +19,14 @@ const LinkGroupHeader = styled("div", {
   color: "$grayTextSecondary",
 
   "&:hover": {
-    backgroundColor: "$gray4",
+    backgroundColor: "$grayUIBgHover",
   },
 
   variants: {
     active: {
       true: {
         color: "$grayTextPrimary",
-        backgroundColor: "$gray5 !important",
+        backgroundColor: "$grayUIBgActive !important",
         fontFamily: "$600",
       },
     },

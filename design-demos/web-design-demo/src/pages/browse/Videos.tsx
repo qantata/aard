@@ -1,7 +1,7 @@
-import { styled } from "@stitches/react";
 import { Image } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ContentPageTitle } from "../../components/ContentPage";
+
+import { styled } from "../../stitches.config";
 
 const Container = styled("div", {
   overflowY: "scroll",
@@ -32,12 +32,13 @@ const VideoBlock = styled("div", {
 const VideoBlockThumbnail = styled("div", {
   width: "100%",
   aspectRatio: "16 / 9",
-  backgroundColor: "#fff",
+  backgroundColor: "$grayBg",
   borderRadius: "10px",
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  color: "$grayTextSecondary",
 
   boxShadow: `
     2.8px 2.8px 2.2px rgba(0, 0, 0, 0.008),
@@ -62,6 +63,7 @@ const VideoBlockTitle = styled("p", {
   "-webkit-line-clamp": "2",
   "-webkit-box-orient": "vertical",
   display: "-webkit-box",
+  color: "$grayTextPrimary",
 
   "&:hover": {
     textDecoration: "underline 2px",

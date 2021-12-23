@@ -1,7 +1,9 @@
 import ReactDOM from "react-dom";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import { globalCss } from "./stitches.config";
+import { darkTheme, globalCss, lightTheme, styled } from "./stitches.config";
+import { ThemeContext, ThemeContextType } from "./context/themeContext";
 import Browse from "./pages/Browse";
 import Settings from "./pages/Settings";
 import Videos from "./pages/browse/Videos";
@@ -89,10 +91,45 @@ const globalStyles = globalCss({
   ],
 });
 
+const ThemeContainer = styled("div", {
+  width: "100%",
+  height: "100%",
+});
+
 const App: React.FC<any> = ({ children }) => {
   globalStyles();
 
-  return children;
+  const [theme, setTheme] = useState<ThemeContextType["theme"]>("Dark");
+
+  const updateBodyClass = (newTheme: ThemeContextType["theme"]) => {
+    if (document.body.classList.contains(lightTheme)) {
+      document.body.classList.remove(lightTheme);
+    }
+
+    if (document.body.classList.contains(darkTheme)) {
+      document.body.classList.remove(darkTheme);
+    }
+
+    document.body.classList.add(newTheme === "Dark" ? darkTheme : lightTheme);
+  };
+
+  useEffect(() => {
+    updateBodyClass(theme);
+  }, []);
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme: (newTheme) => {
+          updateBodyClass(newTheme);
+          setTheme(newTheme);
+        },
+      }}
+    >
+      <ThemeContainer>{children}</ThemeContainer>
+    </ThemeContext.Provider>
+  );
 };
 
 // @ts-ignore until react-18 types come out

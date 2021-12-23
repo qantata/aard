@@ -35,7 +35,7 @@ const Label = styled("label", {
 const labelActiveStyles = {
   top: "-8px",
   transform: "scale(0.8)",
-  backgroundColor: "#fff",
+  backgroundColor: "$grayBg",
 };
 
 const StyledInput = styled("input", {
@@ -44,6 +44,8 @@ const StyledInput = styled("input", {
   borderRadius: "2px",
   fontSize: "$16",
   maxWidth: "300px",
+  backgroundColor: "transparent",
+  color: "$grayTextPrimary",
 
   "&:hover": {
     borderColor: "$accentBorderHover",

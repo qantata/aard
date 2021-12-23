@@ -24,11 +24,11 @@ const StyledInput = styled("input", {
   border: "1px solid $accentBorderHover",
 
   "&:focus": {
-    border: "2px solid #000",
+    outline: "1px solid $grayTextPrimary",
   },
 
   "&:checked": {
-    backgroundColor: "$accentBgSolid",
+    backgroundColor: "$accentUIBgActive",
   },
 });
 
@@ -36,7 +36,7 @@ const Icon = styled("div", {
   position: "absolute",
   left: "4px",
   top: "4px",
-  color: "#fff",
+  color: "$grayTextPrimary",
 });
 
 export const Checkbox: React.FC = (props) => {

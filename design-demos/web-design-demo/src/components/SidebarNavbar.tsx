@@ -1,5 +1,7 @@
+import { useContext } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { ThemeContext } from "../context/themeContext";
 
 import { styled } from "../stitches.config";
 import {
@@ -9,7 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./DropdownMenu";
-import LogoUrl from "/images/Aard-Light-Text-Full.png";
+
+import LightLogoUrl from "/images/Aard-Light-Text-Full.png";
+import DarkLogoUrl from "/images/Aard-Dark-Text-Full.png";
 
 const Container = styled("div", {
   width: "100%",
@@ -34,6 +38,7 @@ const Logo = styled("div", {
 });
 
 export const Navbar = () => {
+  const theme = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const onSettingsSelect = () => {
@@ -44,7 +49,7 @@ export const Navbar = () => {
     <Container>
       <Logo>
         <Link to="/browse/videos">
-          <img src={LogoUrl} />
+          <img src={theme.theme === "Light" ? LightLogoUrl : DarkLogoUrl} />
         </Link>
       </Logo>
 
