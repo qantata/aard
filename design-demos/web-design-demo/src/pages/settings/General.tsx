@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { ContentPageTitle } from "../../components/ContentPage";
+import { ContentPageSubtitle, ContentPageTitle } from "../../components/ContentPage";
 import { Divider } from "../../components/Divider";
 import { Select } from "../../components/Select";
 import { SettingsSubtitle } from "../../components/SettingsSubtitle";
@@ -13,11 +13,10 @@ const General = () => {
 
   return (
     <Container>
-      <ContentPageTitle>General Settings</ContentPageTitle>
+      <ContentPageTitle>Appearance</ContentPageTitle>
+      <ContentPageSubtitle>Change the theme of the app</ContentPageSubtitle>
 
       <Divider />
-
-      <SettingsSubtitle>Appearance</SettingsSubtitle>
 
       <div>
         <Select options={["Light", "Dark"]} value={theme} onChange={setTheme} />

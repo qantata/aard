@@ -1,18 +1,33 @@
 import { Cell, Column, Row, TableBody, TableHeader } from "@react-stately/table";
+import { Cross1Icon } from "@radix-ui/react-icons";
+import { Plus } from "lucide-react";
 
-import { ContentPageTitle } from "../../components/ContentPage";
+import {
+  ContentPageHeader,
+  ContentPageHeaderActions,
+  ContentPageHeaderTitles,
+  ContentPageSubtitle,
+  ContentPageTitle,
+} from "../../components/ContentPage";
 import { Divider } from "../../components/Divider";
-import { SettingsSubtitle } from "../../components/SettingsSubtitle";
 import { Table } from "../../components/Table";
 import { styled } from "../../stitches.config";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
+import {
+  Dialog,
+  DialogCancelButton,
+  DialogClose,
+  DialogCloseButton,
+  DialogConfirmButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/Dialog";
 
 const Container = styled("div");
-
-const AddNewLibraryButtonContainer = styled("div", {
-  marginTop: "12px",
-});
 
 const Libraries = () => {
   let columns = [
@@ -28,25 +43,56 @@ const Libraries = () => {
 
   return (
     <Container>
-      <ContentPageTitle>Library Management</ContentPageTitle>
+      <ContentPageHeader>
+        <ContentPageHeaderTitles>
+          <ContentPageTitle>Libraries</ContentPageTitle>
+          <ContentPageSubtitle>View and manage all your libraries</ContentPageSubtitle>
+        </ContentPageHeaderTitles>
+
+        <ContentPageHeaderActions>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus size={14} />
+                Add library
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create a new library</DialogTitle>
+
+                <DialogClose asChild>
+                  <DialogCloseButton>
+                    <Cross1Icon />
+                  </DialogCloseButton>
+                </DialogClose>
+              </DialogHeader>
+
+              <Divider />
+
+              <Input type="text" label="Library root" />
+
+              <DialogFooter>
+                <DialogClose asChild>
+                  <DialogCancelButton>Cancel</DialogCancelButton>
+                </DialogClose>
+
+                <DialogClose asChild>
+                  <DialogConfirmButton>Create</DialogConfirmButton>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </ContentPageHeaderActions>
+      </ContentPageHeader>
 
       <Divider />
-
-      <SettingsSubtitle>All libraries</SettingsSubtitle>
 
       <Table selectionMode="multiple" aria-label="Libraries">
         <TableHeader columns={columns}>{(column) => <Column>{column.name}</Column>}</TableHeader>
         <TableBody items={rows}>{(item) => <Row>{(columnKey) => <Cell>{item[columnKey]}</Cell>}</Row>}</TableBody>
       </Table>
-
-      <Divider />
-
-      <SettingsSubtitle>Add new library</SettingsSubtitle>
-      <Input type="text" label="Library path" />
-
-      <AddNewLibraryButtonContainer>
-        <Button>Add</Button>
-      </AddNewLibraryButtonContainer>
     </Container>
   );
 };

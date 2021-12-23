@@ -47,13 +47,14 @@ export const TableHeaderRow: React.FC<TableHeaderRowProps> = ({ item, state, chi
 };
 
 const StyledTableHeader = styled(StyledFocus("th"), {
-  padding: "16px 48px 16px 16px",
+  padding: "12px 48px 12px 16px",
   textTransform: "uppercase",
-  fontWeight: "500",
+  fontFamily: "$500",
   fontSize: "$12",
 
   "&:first-child": {
     paddingRight: "16px",
+    borderTopLeftRadius: "6px",
   },
 });
 
@@ -137,7 +138,11 @@ export const TableBody: React.FC = ({ children }) => {
   return <tbody {...rowGroupProps}>{children}</tbody>;
 };
 
-const StyledTableRow = styled(StyledFocus("tr"), {});
+const StyledTableRow = styled(StyledFocus("tr"), {
+  "&:not(:last-child)": {
+    borderBottom: "1px solid $grayBorderSubtle",
+  },
+});
 
 type TableRowProps = {
   item: Node<object>;
@@ -217,7 +222,11 @@ export const TableCheckboxCell: React.FC<CellStateProps> = ({ cell, state }) => 
   );
 };
 
-const StyledTable = styled("table", {});
+const StyledTable = styled("table", {
+  boxShadow: "0 0 0 1px $colors$grayBorderSubtle",
+  borderRadius: "12px",
+  borderCollapse: "collapse",
+});
 
 export const Table = (props: any) => {
   const { selectionMode, selectionBehavior } = props;
@@ -232,7 +241,7 @@ export const Table = (props: any) => {
   const { gridProps } = useTable(props, state, ref);
 
   return (
-    <StyledTable {...gridProps} ref={ref} style={{ borderCollapse: "collapse" }}>
+    <StyledTable {...gridProps} ref={ref}>
       <TableHeader>
         {collection.headerRows.map((headerRow) => (
           <TableHeaderRow key={headerRow.key} item={headerRow} state={state}>

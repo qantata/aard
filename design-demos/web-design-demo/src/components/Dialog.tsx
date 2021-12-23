@@ -27,10 +27,12 @@ const StyledContent = styled(DialogPrimitive.Content, {
   borderRadius: 6,
   overflow: "hidden",
   boxShadow: "hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px",
+  padding: "24px",
   position: "fixed",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
+  minWidth: "400px",
   maxWidth: "90vw",
   maxHeight: "85vh",
   "@media (prefers-reduced-motion: no-preference)": {
@@ -48,11 +50,24 @@ const Content: React.FC = ({ children, ...props }) => {
   );
 };
 
+const StyledHeader = styled("div", {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+});
+
+const StyledFooter = styled("div", {
+  display: "flex",
+  alignItems: "center",
+  gap: "24px",
+  marginTop: "32px",
+});
+
 const StyledTitle = styled(DialogPrimitive.Title, {
   margin: 0,
-  fontWeight: "500",
+  fontFamily: "$600",
   color: "$grayTextPrimary",
-  fontSize: "$16",
+  fontSize: "$20 ",
 });
 
 const StyledDescription = styled(DialogPrimitive.Description, {
@@ -62,9 +77,66 @@ const StyledDescription = styled(DialogPrimitive.Description, {
   lineHeight: 1.5,
 });
 
+const StyledCancelButton = styled("button", {
+  all: "unset",
+  flex: "1",
+  padding: "8px",
+  borderRadius: "8px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "$grayUIBg",
+  color: "$grayTextSecondary",
+  cursor: "pointer",
+  userSelect: "none",
+  "&:hover": {
+    backgroundColor: "$grayUIBgHover",
+    color: "$grayTextPrimary",
+  },
+});
+
+const StyledConfirmButton = styled("button", {
+  all: "unset",
+  flex: "1",
+  padding: "8px",
+  borderRadius: "8px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "$accentUIBg",
+  color: "$accentTextSecondary",
+  cursor: "pointer",
+  userSelect: "none",
+  "&:hover": {
+    backgroundColor: "$accentUIBgHover",
+    color: "$accentTextPrimary",
+  },
+});
+
+const StyledCloseButton = styled("button", {
+  all: "unset",
+  padding: "8px",
+  marginRight: "1px",
+  fontFamily: "inherit",
+  borderRadius: "100%",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "$grayTextSecondary",
+  "&:hover": {
+    backgroundColor: "$accentUIBgHover",
+    color: "$accentTextSecondary",
+  },
+});
+
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogContent = Content;
+export const DialogHeader = StyledHeader;
+export const DialogFooter = StyledFooter;
+export const DialogCloseButton = StyledCloseButton;
+export const DialogCancelButton = StyledCancelButton;
+export const DialogConfirmButton = StyledConfirmButton;
 export const DialogTitle = StyledTitle;
 export const DialogDescription = StyledDescription;
 export const DialogClose = DialogPrimitive.Close;

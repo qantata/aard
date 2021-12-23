@@ -1,25 +1,25 @@
 import { createStitches } from "@stitches/react";
-import { sky, slate } from "@radix-ui/colors";
+import { blue, slate } from "@radix-ui/colors";
 
 export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme, config } = createStitches({
   theme: {
     colors: {
-      ...sky,
+      ...blue,
       ...slate,
 
       // Accent "blue" color
-      accent1: "$sky1",
-      accent2: "$sky2",
-      accent3: "$sky3",
-      accent4: "$sky4",
-      accent5: "$sky5",
-      accent6: "$sky6",
-      accent7: "$sky7",
-      accent8: "$sky8",
-      accent9: "$sky9",
-      accent10: "$sky10",
-      accent11: "$sky11",
-      accent12: "$sky12",
+      accent1: "$blue1",
+      accent2: "$blue2",
+      accent3: "$blue3",
+      accent4: "$blue4",
+      accent5: "$blue5",
+      accent6: "$blue6",
+      accent7: "$blue7",
+      accent8: "$blue8",
+      accent9: "$blue9",
+      accent10: "$blue10",
+      accent11: "$blue11",
+      accent12: "$blue12",
 
       accentBg: "$accent1",
       accentBgSubtle: "$accent2",
@@ -63,12 +63,22 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
     },
     fonts: {
       primary: "Inter",
+      100: "Lato100",
+      200: "Lato200",
+      300: "Lato300",
+      400: "Lato400",
+      500: "Lato500",
+      600: "Lato600",
+      700: "Lato700",
+      800: "Lato800",
+      900: "Lato900",
     },
     fontSizes: {
       10: "0.625rem",
       12: "0.75rem",
       13: "0.8125rem",
       14: "0.875rem",
+      15: "0.9375rem",
       16: "1rem",
       18: "1.125rem",
       20: "1.25rem",

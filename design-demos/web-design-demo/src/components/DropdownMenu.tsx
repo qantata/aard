@@ -54,6 +54,7 @@ const itemStyles = {
   fontSize: 13,
   lineHeight: 1,
   color: "$gray12",
+  fontFamily: "$500",
   borderRadius: 3,
   display: "flex",
   alignItems: "center",

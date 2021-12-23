@@ -15,7 +15,7 @@ const LinkGroupHeader = styled("div", {
   padding: "12px 16px",
   borderRadius: "10px",
   fontSize: "$13",
-  fontWeight: "500",
+  fontFamily: "$500",
   color: "$grayTextSecondary",
 
   "&:hover": {
@@ -27,7 +27,7 @@ const LinkGroupHeader = styled("div", {
       true: {
         color: "$grayTextPrimary",
         backgroundColor: "$gray5 !important",
-        fontWeight: "600",
+        fontFamily: "$600",
       },
     },
   },

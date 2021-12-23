@@ -9,7 +9,25 @@ export const ContentPage = styled("div", {
   },
 });
 
+export const ContentPageHeader = styled("div", {
+  width: "100%",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+});
+
+export const ContentPageHeaderTitles = styled("div", {});
+
+export const ContentPageHeaderActions = styled("div");
+
 export const ContentPageTitle = styled("h1", {
-  fontSize: "$24",
-  fontWeight: "600",
+  fontSize: "$20",
+  fontFamily: "$600",
+  marginBottom: "8px",
+});
+
+export const ContentPageSubtitle = styled("p", {
+  fontSize: "$14",
+  fontFamily: "$600",
+  color: "$grayTextSecondary",
 });

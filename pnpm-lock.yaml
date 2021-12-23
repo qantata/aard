@@ -164,6 +164,7 @@ importers:
       '@radix-ui/react-collapsible': 0.1.5
       '@radix-ui/react-dialog': 0.1.5
       '@radix-ui/react-dropdown-menu': 0.1.4
+      '@radix-ui/react-icons': 1.0.3
       '@react-aria/button': 3.3.4
       '@react-aria/checkbox': 3.2.3
       '@react-aria/focus': 3.5.0
@@ -188,6 +189,7 @@ importers:
       '@radix-ui/react-collapsible': 0.1.5_72b3cfa21cf87f3feb69891c17264920
       '@radix-ui/react-dialog': 0.1.5_ceb99d51968929e25325bd4e761b45dd
       '@radix-ui/react-dropdown-menu': 0.1.4_ceb99d51968929e25325bd4e761b45dd
+      '@radix-ui/react-icons': 1.0.3_72b3cfa21cf87f3feb69891c17264920
       '@react-aria/button': 3.3.4_72b3cfa21cf87f3feb69891c17264920
       '@react-aria/checkbox': 3.2.3_72b3cfa21cf87f3feb69891c17264920
       '@react-aria/focus': 3.5.0_72b3cfa21cf87f3feb69891c17264920
@@ -1899,6 +1901,14 @@ packages:
       '@radix-ui/react-compose-refs': 0.1.0_72b3cfa21cf87f3feb69891c17264920
       '@radix-ui/react-primitive': 0.1.3_72b3cfa21cf87f3feb69891c17264920
       '@radix-ui/react-use-callback-ref': 0.1.0_72b3cfa21cf87f3feb69891c17264920
+      react: 18.0.0-beta-4ff5f5719-20211115
+    dev: false
+
+  /@radix-ui/react-icons/1.0.3_72b3cfa21cf87f3feb69891c17264920:
+    resolution: {integrity: sha512-YbPAUZwTsvF/2H7IU35txaLUB+JNSV8GIhnswlqiFODP/P32t5op5keYUvQWsSj9TA0VLF367J24buUjIprn0w==}
+    peerDependencies:
+      react: ^16.x || ^17.x
+    dependencies:
       react: 18.0.0-beta-4ff5f5719-20211115
     dev: false
 

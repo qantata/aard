@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTextField } from "@react-aria/textfield";
 
 import { styled } from "../stitches.config";
@@ -6,29 +6,68 @@ import { styled } from "../stitches.config";
 const Container = styled("div", {
   display: "flex",
   flexDirection: "column",
+
+  "&:not(:last-child)": {
+    marginBottom: "12px",
+  },
+});
+
+const InputContainer = styled("div", {
+  position: "relative",
 });
 
 const Label = styled("label", {
-  color: "$grayTextPrimary",
-  fontWeight: "500",
+  color: "$grayTextSecondary",
+  fontFamily: "$500",
   marginBottom: "6px",
   fontSize: "$14",
+  position: "absolute",
+  left: "5px",
+  backgroundColor: "transparent",
+  padding: "0 10px",
+  top: "50%",
+  transform: "translate(0, -50%)",
+  pointerEvents: "none",
+
+  transition: "top 0.1s ease-out, transform 0.1s ease-out, background-color 0.2s ease-out",
 });
 
+const labelActiveStyles = {
+  top: "-8px",
+  transform: "scale(0.8)",
+  backgroundColor: "#fff",
+};
+
 const StyledInput = styled("input", {
-  padding: "6px 12px",
-  backgroundColor: "$grayUIBg",
-  border: "0",
-  borderRadius: "6px",
+  padding: "8px 16px",
+  border: "1px solid $grayBorder",
+  borderRadius: "2px",
   fontSize: "$16",
   maxWidth: "300px",
 
   "&:hover": {
-    backgroundColor: "$grayUIBgHover",
+    borderColor: "$accentBorderHover",
   },
 
   "&:focus": {
-    backgroundColor: "$grayUIBgActive !important",
+    borderColor: "$accentBorderHover",
+    outline: "none",
+
+    "+ label": {
+      ...labelActiveStyles,
+    },
+  },
+
+  transition: "border-color 0.25s ease-out",
+
+  variants: {
+    filled: {
+      true: {
+        "+ label": {
+          ...labelActiveStyles,
+        },
+      },
+    },
   },
 });
 
@@ -44,10 +83,25 @@ export const Input: React.FC<Props> = (props) => {
   let ref = useRef(null);
   let { labelProps, inputProps, descriptionProps, errorMessageProps } = useTextField(props, ref);
 
+  const [value, setValue] = useState("");
+
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
   return (
     <Container>
-      {label && <Label {...labelProps}>{label}</Label>}
-      <StyledInput {...inputProps} ref={ref} type={props.type} />
+      <InputContainer>
+        <StyledInput
+          {...inputProps}
+          ref={ref}
+          type={props.type}
+          value={value}
+          onChange={onChange}
+          filled={value !== ""}
+        />
+        {label && <Label {...labelProps}>{label}</Label>}
+      </InputContainer>
       {props.description && (
         <div {...descriptionProps} style={{ fontSize: 12 }}>
           {props.description}
