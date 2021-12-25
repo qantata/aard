@@ -32,50 +32,10 @@ const Label = styled("label", {
   transition: "top 0.1s ease-out, transform 0.1s ease-out, background-color 0.2s ease-out",
 });
 
-const labelActiveStyles = {
-  top: "-8px",
-  transform: "scale(0.8)",
-  backgroundColor: "$grayBg",
-};
-
-const StyledInput = styled("input", {
-  padding: "8px 16px",
-  border: "1px solid $grayBorder",
-  borderRadius: "2px",
-  fontSize: "$16",
-  maxWidth: "300px",
-  backgroundColor: "transparent",
-  color: "$grayTextPrimary",
-
-  "&:hover": {
-    borderColor: "$accentBorderHover",
-  },
-
-  "&:focus": {
-    borderColor: "$accentBorderHover",
-    outline: "none",
-
-    "+ label": {
-      ...labelActiveStyles,
-    },
-  },
-
-  transition: "border-color 0.25s ease-out",
-
-  variants: {
-    filled: {
-      true: {
-        "+ label": {
-          ...labelActiveStyles,
-        },
-      },
-    },
-  },
-});
-
 type Props = {
   type: "text" | "password";
   label?: string;
+  labelActiveBgColor?: string;
   errorMessage?: string;
   description?: string;
 };
@@ -90,6 +50,49 @@ export const Input: React.FC<Props> = (props) => {
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
+
+  const labelActiveStyles = {
+    top: "-8px",
+    transform: "scale(0.8)",
+    backgroundColor: `${props.labelActiveBgColor ?? "$grayBg"}`,
+  };
+
+  const [StyledInput] = useState(() =>
+    styled("input", {
+      padding: "8px 16px",
+      border: "1px solid $grayBorder",
+      borderRadius: "2px",
+      fontSize: "$16",
+      maxWidth: "300px",
+      backgroundColor: "transparent",
+      color: "$grayTextPrimary",
+
+      "&:hover": {
+        borderColor: "$accentBorderHover",
+      },
+
+      "&:focus": {
+        borderColor: "$accentBorderHover",
+        outline: "none",
+
+        "+ label": {
+          ...labelActiveStyles,
+        },
+      },
+
+      transition: "border-color 0.25s ease-out",
+
+      variants: {
+        filled: {
+          true: {
+            "+ label": {
+              ...labelActiveStyles,
+            },
+          },
+        },
+      },
+    })
+  );
 
   return (
     <Container>

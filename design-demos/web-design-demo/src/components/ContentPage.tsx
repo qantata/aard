@@ -3,7 +3,6 @@ import { styled } from "../stitches.config";
 export const ContentPage = styled("div", {
   flex: "1",
   position: "relative",
-  backgroundColor: "$grayBgSubtle",
 
   "> *": {
     padding: "$sizes$contentTopMargin 32px 32px 32px",

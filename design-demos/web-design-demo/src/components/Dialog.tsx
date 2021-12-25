@@ -103,13 +103,13 @@ const StyledConfirmButton = styled("button", {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  backgroundColor: "$accentUIBg",
-  color: "$accentTextSecondary",
+  backgroundColor: "$accentBgSolid",
+  color: "#fff",
+  fontFamily: "$500",
   cursor: "pointer",
   userSelect: "none",
   "&:hover": {
-    backgroundColor: "$accentUIBgHover",
-    color: "$accentTextPrimary",
+    backgroundColor: "$accentBgSolidHover",
   },
 });
 

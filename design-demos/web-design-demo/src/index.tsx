@@ -11,6 +11,7 @@ import Watch from "./pages/browse/Watch";
 import General from "./pages/settings/General";
 import Libraries from "./pages/settings/Libraries";
 import Users from "./pages/settings/Users";
+import Login from "./pages/Login";
 
 const globalStyles = globalCss({
   "*": {
@@ -27,6 +28,7 @@ const globalStyles = globalCss({
   body: {
     height: "100%",
     overflowY: "hidden",
+    backgroundColor: "$grayBgSubtle",
 
     "> #root": {
       height: "100%",
@@ -99,7 +101,7 @@ const ThemeContainer = styled("div", {
 const App: React.FC<any> = ({ children }) => {
   globalStyles();
 
-  const [theme, setTheme] = useState<ThemeContextType["theme"]>("Dark");
+  const [theme, setTheme] = useState<ThemeContextType["theme"]>("Light");
 
   const updateBodyClass = (newTheme: ThemeContextType["theme"]) => {
     if (document.body.classList.contains(lightTheme)) {
@@ -140,7 +142,9 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/">
-          <Route index element={<Navigate replace to="/browse" />} />
+          <Route index element={<Navigate replace to="/login" />} />
+
+          <Route path="login" element={<Login />} />
 
           <Route path="browse" element={<Browse />}>
             <Route path="videos">
