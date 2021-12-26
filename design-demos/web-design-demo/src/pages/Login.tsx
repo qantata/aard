@@ -15,7 +15,7 @@ const Container = styled("div", {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  marginTop: "200px",
+  paddingTop: "200px",
 });
 
 const Logo = styled("div", {
