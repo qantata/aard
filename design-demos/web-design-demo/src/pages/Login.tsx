@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Checkbox } from "../components/Checkbox";
 import { DialogConfirmButton } from "../components/Dialog";
@@ -47,6 +48,7 @@ const ButtonsContainer = styled("div", {
 
 const Login = () => {
   const theme = useContext(ThemeContext);
+  const navigate = useNavigate();
 
   return (
     <Container>
@@ -62,7 +64,7 @@ const Login = () => {
         <Checkbox>Remember me</Checkbox>
 
         <ButtonsContainer>
-          <DialogConfirmButton>Sign in</DialogConfirmButton>
+          <DialogConfirmButton onClick={() => navigate("/browse")}>Sign in</DialogConfirmButton>
         </ButtonsContainer>
       </LoginBox>
     </Container>
