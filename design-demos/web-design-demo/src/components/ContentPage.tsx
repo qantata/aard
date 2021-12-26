@@ -1,7 +1,8 @@
 import { styled } from "../stitches.config";
 
 export const ContentPage = styled("div", {
-  flex: "1",
+  width: "calc(100% - 280px)",
+  marginLeft: "280px",
   position: "relative",
 
   "> *": {

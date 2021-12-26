@@ -1,5 +1,5 @@
 import { createStitches } from "@stitches/react";
-import { blue, blueDark, slate, slateDark } from "@radix-ui/colors";
+import { amber, amberDark, blue, blueDark, red, redDark, slate, slateDark } from "@radix-ui/colors";
 
 export const {
   styled,
@@ -15,6 +15,8 @@ export const {
     colors: {
       ...blue,
       ...slate,
+      ...amber,
+      ...red,
 
       // Accent "blue" color
       accent1: "$blue1",
@@ -42,6 +44,60 @@ export const {
       accentBgSolidHover: "$accent10",
       accentTextSecondary: "$accent11",
       accentTextPrimary: "$accent12",
+
+      // Warnings
+      warning1: "$amber1",
+      warning2: "$amber2",
+      warning3: "$amber3",
+      warning4: "$amber4",
+      warning5: "$amber5",
+      warning6: "$amber6",
+      warning7: "$amber7",
+      warning8: "$amber8",
+      warning9: "$amber9",
+      warning10: "$amber10",
+      warning11: "$amber11",
+      warning12: "$amber12",
+
+      warningBg: "$warning1",
+      warningBgSubtle: "$warning2",
+      warningUIBg: "$warning3",
+      warningUIBgHover: "$warning4",
+      warningUIBgActive: "$warning5",
+      warningBorderSubtle: "$warning6",
+      warningBorder: "$warning7",
+      warningBorderHover: "$warning8",
+      warningBgSolid: "$warning9",
+      warningBgSolidHover: "$warning10",
+      warningTextSecondary: "$warning11",
+      warningTextPrimary: "$warning12",
+
+      // Errors
+      error1: "$red1",
+      error2: "$red2",
+      error3: "$red3",
+      error4: "$red4",
+      error5: "$red5",
+      error6: "$red6",
+      error7: "$red7",
+      error8: "$red8",
+      error9: "$red9",
+      error10: "$red10",
+      error11: "$red11",
+      error12: "$red12",
+
+      errorBg: "$error1",
+      errorBgSubtle: "$error2",
+      errorUIBg: "$error3",
+      errorUIBgHover: "$error4",
+      errorUIBgActive: "$error5",
+      errorBorderSubtle: "$error6",
+      errorBorder: "$error7",
+      errorBorderHover: "$error8",
+      errorBgSolid: "$error9",
+      errorBgSolidHover: "$error10",
+      errorTextSecondary: "$error11",
+      errorTextPrimary: "$error12",
 
       // Grays
       gray1: "$slate1",
@@ -108,6 +164,8 @@ export const darkTheme = createTheme({
   colors: {
     ...blueDark,
     ...slateDark,
+    ...amberDark,
+    ...redDark,
 
     // Accent "blue" color
     accent1: "$blue1",
@@ -135,6 +193,60 @@ export const darkTheme = createTheme({
     accentBgSolidHover: "$accent10",
     accentTextSecondary: "$accent11",
     accentTextPrimary: "$accent12",
+
+    // Warnings
+    warning1: "$amber1",
+    warning2: "$amber2",
+    warning3: "$amber3",
+    warning4: "$amber4",
+    warning5: "$amber5",
+    warning6: "$amber6",
+    warning7: "$amber7",
+    warning8: "$amber8",
+    warning9: "$amber9",
+    warning10: "$amber10",
+    warning11: "$amber11",
+    warning12: "$amber12",
+
+    warningBg: "$warning1",
+    warningBgSubtle: "$warning2",
+    warningUIBg: "$warning3",
+    warningUIBgHover: "$warning4",
+    warningUIBgActive: "$warning5",
+    warningBorderSubtle: "$warning6",
+    warningBorder: "$warning7",
+    warningBorderHover: "$warning8",
+    warningBgSolid: "$warning9",
+    warningBgSolidHover: "$warning10",
+    warningTextSecondary: "$warning11",
+    warningTextPrimary: "$warning12",
+
+    // Errors
+    error1: "$red1",
+    error2: "$red2",
+    error3: "$red3",
+    error4: "$red4",
+    error5: "$red5",
+    error6: "$red6",
+    error7: "$red7",
+    error8: "$red8",
+    error9: "$red9",
+    error10: "$red10",
+    error11: "$red11",
+    error12: "$red12",
+
+    errorBg: "$error1",
+    errorBgSubtle: "$error2",
+    errorUIBg: "$error3",
+    errorUIBgHover: "$error4",
+    errorUIBgActive: "$error5",
+    errorBorderSubtle: "$error6",
+    errorBorder: "$error7",
+    errorBorderHover: "$error8",
+    errorBgSolid: "$error9",
+    errorBgSolidHover: "$error10",
+    errorTextSecondary: "$error11",
+    errorTextPrimary: "$error12",
 
     // Grays
     gray1: "$slate1",

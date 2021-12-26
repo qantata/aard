@@ -4,7 +4,7 @@ const Container = styled("div", {
   width: "280px",
   height: "100%",
   padding: "$sizes$contentTopMargin 24px 0 24px",
-  position: "relative",
+  position: "fixed",
   backgroundColor: "$grayBg",
 
   display: "flex",

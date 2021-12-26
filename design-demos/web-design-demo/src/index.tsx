@@ -27,7 +27,8 @@ const globalStyles = globalCss({
   },
   body: {
     height: "100%",
-    overflowY: "hidden",
+    overflowY: "auto",
+    overflowX: "hidden",
     backgroundColor: "$grayBgSubtle",
 
     "> #root": {
@@ -101,7 +102,7 @@ const ThemeContainer = styled("div", {
 const App: React.FC<any> = ({ children }) => {
   globalStyles();
 
-  const [theme, setTheme] = useState<ThemeContextType["theme"]>("Light");
+  const [theme, setTheme] = useState<ThemeContextType["theme"]>("Dark");
 
   const updateBodyClass = (newTheme: ThemeContextType["theme"]) => {
     if (document.body.classList.contains(lightTheme)) {
@@ -147,6 +148,8 @@ root.render(
           <Route path="login" element={<Login />} />
 
           <Route path="browse" element={<Browse />}>
+            <Route index element={<Navigate replace to="/browse/videos" />} />
+
             <Route path="videos">
               <Route index element={<Videos />} />
             </Route>

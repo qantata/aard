@@ -175,9 +175,11 @@ importers:
       '@react-stately/table': 3.1.0
       '@react-stately/toggle': 3.2.3
       '@stitches/react': 1.2.6
+      '@types/body-scroll-lock': 3.1.0
       '@types/react': 17.0.33
       '@types/react-dom': 17.0.10
       '@vitejs/plugin-react': 1.0.7
+      body-scroll-lock: 3.1.5
       lucide-react: 0.16.22
       react: 18.0.0-beta-4ff5f5719-20211115
       react-dom: 18.0.0-beta-4ff5f5719-20211115
@@ -200,11 +202,13 @@ importers:
       '@react-stately/table': 3.1.0_72b3cfa21cf87f3feb69891c17264920
       '@react-stately/toggle': 3.2.3_72b3cfa21cf87f3feb69891c17264920
       '@stitches/react': 1.2.6_72b3cfa21cf87f3feb69891c17264920
+      body-scroll-lock: 3.1.5
       lucide-react: 0.16.22_72b3cfa21cf87f3feb69891c17264920
       react: 18.0.0-beta-4ff5f5719-20211115
       react-dom: 18.0.0-beta-4ff5f5719-20211115_72b3cfa21cf87f3feb69891c17264920
       react-router-dom: 6.1.1_0042c2231ff7be5790f475c9c5336c10
     devDependencies:
+      '@types/body-scroll-lock': 3.1.0
       '@types/react': 17.0.33
       '@types/react-dom': 17.0.10
       '@vitejs/plugin-react': 1.0.7
@@ -2584,6 +2588,10 @@ packages:
       '@types/connect': 3.4.35
       '@types/node': 16.11.13
 
+  /@types/body-scroll-lock/3.1.0:
+    resolution: {integrity: sha512-3owAC4iJub5WPqRhxd8INarF2bWeQq1yQHBgYhN0XLBJMpd5ED10RrJ3aKiAwlTyL5wK7RkBD4SZUQz2AAAMdA==}
+    dev: true
+
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
@@ -3260,6 +3268,10 @@ packages:
       qs: 6.9.6
       raw-body: 2.4.2
       type-is: 1.6.18
+    dev: false
+
+  /body-scroll-lock/3.1.5:
+    resolution: {integrity: sha512-Yi1Xaml0EvNA0OYWxXiYNqY24AfWkbA6w5vxE7GWxtKfzIbZM+Qw+aSmkgsbWzbHiy/RCSkUZBplVxTA+E4jJg==}
     dev: false
 
   /bottleneck/2.19.5:

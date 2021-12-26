@@ -17,8 +17,8 @@ import DarkLogoUrl from "/images/Aard-Dark-Text-Full.png";
 
 const Container = styled("div", {
   width: "100%",
-  height: "50px",
-  padding: "10px 24px",
+  height: "70px",
+  padding: "20px 24px",
   position: "absolute",
   top: "0",
   left: "0",
