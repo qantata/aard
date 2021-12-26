@@ -14,7 +14,7 @@ const Container = styled("div", {
 
   "> video": {
     width: "100%",
-    height: "100%",
+    maxHeight: "100%",
   },
 });
 
