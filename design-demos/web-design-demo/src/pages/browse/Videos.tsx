@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { styled } from "../../stitches.config";
 
 const Container = styled("div", {
-  overflowY: "scroll",
   height: "100%",
 });
 
