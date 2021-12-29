@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
-import { VideoStreamSessionService } from './video-stream-session.service';
-import { VideoStreamSessionController } from './video-stream-session.controller';
+import { Module } from "@nestjs/common";
+
+import { VideoStreamSessionService } from "./video-stream-session.service";
+import { VideoStreamSessionController } from "./video-stream-session.controller";
+import { VideoStreamSessionManagerModule } from "@/video-stream-session-manager/video-stream-session-manager.module";
 
 @Module({
+  imports: [VideoStreamSessionManagerModule],
   providers: [VideoStreamSessionService],
-  controllers: [VideoStreamSessionController]
+  controllers: [VideoStreamSessionController],
 })
 export class VideoStreamSessionModule {}

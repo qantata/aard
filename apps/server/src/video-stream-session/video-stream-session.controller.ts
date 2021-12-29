@@ -7,11 +7,14 @@ import { context } from "@/nexus/context";
 import { getSessionStreamPath } from "@/utils/paths";
 import { handleStreamSegmentRequest } from "@/utils/transcode-manager";
 import { parseProbeDataString } from "@/utils/ffprobe-transformer";
+import { VideoStreamSessionManagerService } from "@/video-stream-session-manager/video-stream-session-manager.service";
 
 @Controller()
 export class VideoStreamSessionController {
+  constructor(private videoStreamSessionManager: VideoStreamSessionManagerService) {}
+
   @Get(":id/direct")
-  async direct(@Req() req: Request, @Res() res: Response, @Param("id") id: string) {
+  async direct(@Res() res: Response, @Param("id") id: string) {
     const session = await context().prisma.videoStreamSession.findUnique({
       where: {
         id,
@@ -29,12 +32,7 @@ export class VideoStreamSessionController {
   }
 
   @Get(":sessionId/:file")
-  async sessionFile(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Param("sessionId") sessionId: string,
-    @Param("file") file: string
-  ) {
+  async sessionFile(@Res() res: Response, @Param("sessionId") sessionId: string, @Param("file") file: string) {
     const session = await context().prisma.videoStreamSession.findUnique({
       where: {
         id: sessionId,
@@ -50,7 +48,6 @@ export class VideoStreamSessionController {
 
   @Get(":sessionId/streams/:streamId/:file")
   async streamFile(
-    @Req() req: Request,
     @Res() res: Response,
     @Param("sessionId") sessionId: string,
     @Param("streamId") streamId: string,
@@ -70,34 +67,30 @@ export class VideoStreamSessionController {
       },
     });
 
-    const profile = session?.clients[0].profiles.find((p: any) => p.id === streamId);
-
-    if (!session || !profile) {
+    if (!session) {
       res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+
+    // TODO: Don't just use [0]
+    const profile = session.clients[0].profiles.find((p: any) => p.id === streamId);
+
+    if (!profile) {
+      res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+
+    const filepath = getSessionStreamPath(session.id, profile.id, file);
+
+    // Requested files can be .m3u8 or .ts, .ts needs transcoding
+    if (file.endsWith(".ts")) {
+      await this.videoStreamSessionManager.resolveStreamSegmentRequest(session, profile, parseInt(file));
+    }
+
+    if (fs.existsSync(filepath)) {
+      res.sendFile(filepath);
     } else {
-      if (file.endsWith(".m3u8")) {
-        res.sendFile(getSessionStreamPath(session.id, profile.id, file));
-        return;
-      }
-
-      // Wait for segment to be transcoded
-      await handleStreamSegmentRequest(
-        session.file.path,
-        session.id,
-        profile.id,
-        file,
-        parseProbeDataString(session.file.probeData),
-        profile.width,
-        profile.videoBitrate,
-        profile.audioBitrate || undefined
-      );
-
-      const segmentFilepath = getSessionStreamPath(session.id, profile.id, file);
-      if (fs.existsSync(segmentFilepath)) {
-        res.sendFile(segmentFilepath);
-      } else {
-        res.status(HttpStatus.NOT_FOUND).send();
-      }
+      res.status(HttpStatus.NOT_FOUND).send();
     }
   }
 }
