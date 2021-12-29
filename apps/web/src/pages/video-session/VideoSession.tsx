@@ -102,7 +102,7 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
       newHls.attachMedia(videoRef.current);
 
       newHls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        newHls?.loadSource(`http://localhost:5004/data/session/${prepared.id}/index.m3u8`);
+        newHls?.loadSource(`http://localhost:5004/api/sessions/${prepared.id}/index.m3u8`);
 
         newHls?.on(Hls.Events.MANIFEST_PARSED, () => {
           newHls?.startLoad(-1);
@@ -228,7 +228,7 @@ const VideoSession: React.FunctionComponent<Props> = ({ prepared }) => {
   return (
     <>
       <video ref={videoRef} controls width="100%" style={{ aspectRatio: "16 / 9" }}>
-        {false && <source type="video/mp4" src={`http://localhost:5004/data/session/${prepared.id}/direct`} />}
+        {false && <source type="video/mp4" src={`http://localhost:5004/api/sessions/${prepared.id}/direct`} />}
       </video>
 
       {videoRef.current && (
