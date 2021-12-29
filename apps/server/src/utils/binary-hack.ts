@@ -1,6 +1,6 @@
 // @ts-nocheck typing child_process is a pain
 
-import path from "path";
+import * as path from "path";
 
 export default function () {
   var childProcess = require("child_process");

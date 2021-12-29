@@ -1,6 +1,6 @@
 import { extendType, objectType } from "nexus";
 
-import { Movie as PMovie } from "nexus-prisma";
+import { Movie as PMovie } from "@lib/nexus-prisma";
 
 export const Movie = objectType({
   name: PMovie.$name,

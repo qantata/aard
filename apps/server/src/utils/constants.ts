@@ -1,5 +1,5 @@
-import os from "os";
-import path from "path";
+import * as os from "os";
+import * as path from "path";
 
 export const IS_PKG = (<any>process).pkg !== undefined;
 export const DEV = process.env.NODE_ENV === "development";

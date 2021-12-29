@@ -1,7 +1,7 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 
-import { Library as PLibrary } from "nexus-prisma";
-import { isDirectory } from "../../utils/filesystem";
+import { Library as PLibrary } from "@lib/nexus-prisma";
+import { isDirectory } from "@/utils/filesystem";
 
 export const Library = objectType({
   name: PLibrary.$name,

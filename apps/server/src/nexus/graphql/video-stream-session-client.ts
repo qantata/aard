@@ -1,6 +1,6 @@
 import { extendType, objectType } from "nexus";
 
-import { VideoStreamSessionClient as PVideoStreamSessionClient } from "nexus-prisma";
+import { VideoStreamSessionClient as PVideoStreamSessionClient } from "@lib/nexus-prisma";
 
 export const VideoStreamSessionClient = objectType({
   name: PVideoStreamSessionClient.$name,

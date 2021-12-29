@@ -1,6 +1,6 @@
 import { objectType } from "nexus";
 
-import { VideoFile as PVideoFile } from "nexus-prisma";
+import { VideoFile as PVideoFile } from "@lib/nexus-prisma";
 
 export const VideoFile = objectType({
   name: PVideoFile.$name,

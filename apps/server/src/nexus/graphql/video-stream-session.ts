@@ -1,11 +1,14 @@
 import { extendType, inputObjectType, objectType, stringArg } from "nexus";
-import fse from "fs-extra";
-import path from "path";
+import * as fse from "fs-extra";
+import * as path from "path";
 
-import { VideoStreamProfile as PVideoStreamProfile, VideoStreamSession as PVideoStreamSession } from "nexus-prisma";
-import { parseProbeDataString } from "../../utils/ffprobe-transformer";
-import { getSessionStreamPath } from "../../utils/paths";
-import { handleSessionDeletion } from "../../utils/transcode-manager";
+import {
+  VideoStreamProfile as PVideoStreamProfile,
+  VideoStreamSession as PVideoStreamSession,
+} from "@lib/nexus-prisma";
+import { parseProbeDataString } from "@/utils/ffprobe-transformer";
+import { getSessionStreamPath } from "@/utils/paths";
+import { handleSessionDeletion } from "@/utils/transcode-manager";
 
 export const VideoStreamSession = objectType({
   name: "VideoStreamSession",

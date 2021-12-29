@@ -1,6 +1,6 @@
 import { extendType, objectType } from "nexus";
 
-import { VideoStreamProfile as PVideoStreamProfile } from "nexus-prisma";
+import { VideoStreamProfile as PVideoStreamProfile } from "@lib/nexus-prisma";
 
 export const VideoStreamProfile = objectType({
   name: PVideoStreamProfile.$name,

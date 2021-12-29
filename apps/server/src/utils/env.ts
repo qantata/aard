@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 
 import { DATABASE_URL, DEV, IS_PKG } from "./constants";
 

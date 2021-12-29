@@ -1,4 +1,4 @@
-import fse from "fs-extra";
+import * as fse from "fs-extra";
 
 import { VideoProbeResultType } from "./ffprobe-transformer";
 import { getSessionStreamPath } from "./paths";

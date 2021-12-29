@@ -1,8 +1,8 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import chokidar from "chokidar";
-import fse from "fs-extra";
-import path from "path";
-import os from "os";
+import * as chokidar from "chokidar";
+import * as fse from "fs-extra";
+import * as path from "path";
+import * as os from "os";
 
 import { VideoProbeResultType } from "./ffprobe-transformer";
 

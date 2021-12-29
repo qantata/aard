@@ -1,6 +1,6 @@
-import fs from "fs";
-import fse from "fs-extra";
-import crypto from "crypto";
+import * as fs from "fs";
+import * as fse from "fs-extra";
+import * as crypto from "crypto";
 
 export const isDirectory = async (path: string) => {
   return new Promise(async (resolve) => {
