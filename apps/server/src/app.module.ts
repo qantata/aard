@@ -14,6 +14,7 @@ import { VideoStreamSessionModule } from "./video-stream-session/video-stream-se
 import { VideoStreamSessionManagerModule } from "./video-stream-session-manager/video-stream-session-manager.module";
 import { PrismaService } from "./prisma/prisma.service";
 import { PrismaModule } from "./prisma/prisma.module";
+import { FilesystemModule } from './filesystem/filesystem.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { PrismaModule } from "./prisma/prisma.module";
     VideoStreamSessionModule,
     VideoStreamSessionManagerModule,
     PrismaModule,
+    FilesystemModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
