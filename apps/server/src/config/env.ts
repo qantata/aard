@@ -1,10 +1,10 @@
 import * as dotenv from "dotenv";
-
-import { DATABASE_URL, IS_DEV, IS_PKG } from "@/utils/constants";
+import * as path from "path";
+import * as os from "os";
 
 export default function () {
-  // Need to set here and not .env file because it uses os.homedir()
-  process.env.DATABASE_URL = `file:${DATABASE_URL}`;
+  const IS_PKG = (<any>process).pkg !== undefined;
+  const IS_DEV = process.env.NODE_ENV === "development";
 
   const BASE = IS_PKG ? "/snapshot/aard/apps/server" : ".";
 
@@ -46,7 +46,21 @@ export default function () {
     });
   }
 
+  const DATA_DIR = path.join(os.homedir(), ".aard");
+  const DATABASE_PATH = path.join(DATA_DIR, IS_DEV ? "dev.db" : "database.db");
+
+  const computed = {
+    IS_PKG,
+    IS_DEV,
+    DATA_DIR,
+    DATABASE_PATH,
+    DATABASE_URL: `file:${DATABASE_PATH}`,
+    PKG_SERVER_DIR: "/snapshot/aard/apps/server",
+    version: process.env.AARD_VERSION !== undefined ? process.env.AARD_VERSION : "UNKNOWN",
+  };
+
   return {
+    ...computed,
     ...process.env,
   };
 }
