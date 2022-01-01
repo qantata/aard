@@ -4,6 +4,7 @@ import { RouterModule } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 
 import env from "./config/env";
+import binaryHack from "./config/binary-hack";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { GraphqlConfigModule } from "./graphql-config/graphql-config.module";
@@ -14,13 +15,13 @@ import { VideoStreamSessionModule } from "./video-stream-session/video-stream-se
 import { VideoStreamSessionManagerModule } from "./video-stream-session-manager/video-stream-session-manager.module";
 import { PrismaService } from "./prisma/prisma.service";
 import { PrismaModule } from "./prisma/prisma.module";
-import { FilesystemModule } from './filesystem/filesystem.module';
-import { UtilsModule } from './utils/utils.module';
+import { FilesystemModule } from "./filesystem/filesystem.module";
+import { UtilsModule } from "./utils/utils.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [env],
+      load: [binaryHack, env],
     }),
     GraphQLModule.forRootAsync({
       useClass: GraphqlConfigService,
