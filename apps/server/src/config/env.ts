@@ -2,6 +2,16 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import * as os from "os";
 
+export type Env = {
+  IS_PKG: boolean;
+  IS_DEV: boolean;
+  DATA_DIR: string;
+  DATABASE_PATH: string;
+  DATABASE_URL: string;
+  PKG_SERVER_DIR: string;
+  version: string;
+};
+
 export default function () {
   const IS_PKG = (<any>process).pkg !== undefined;
   const IS_DEV = process.env.NODE_ENV === "development";
@@ -49,7 +59,7 @@ export default function () {
   const DATA_DIR = path.join(os.homedir(), ".aard");
   const DATABASE_PATH = path.join(DATA_DIR, IS_DEV ? "dev.db" : "database.db");
 
-  const computed = {
+  const computed: Env = {
     IS_PKG,
     IS_DEV,
     DATA_DIR,
@@ -59,8 +69,14 @@ export default function () {
     version: process.env.AARD_VERSION !== undefined ? process.env.AARD_VERSION : "UNKNOWN",
   };
 
+  // Set these manually to process.env because for some reason the NestJs ConfigModule doesn't instantly
+  // set them and some things like the Prisma migration needs them to be set instantly in process.env.
+  for (const key of Object.keys(computed)) {
+    process.env[key] = computed[key];
+  }
+
   return {
-    ...computed,
     ...process.env,
+    ...computed,
   };
 }
