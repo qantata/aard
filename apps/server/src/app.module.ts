@@ -17,6 +17,7 @@ import { PrismaService } from "./prisma/prisma.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { FilesystemModule } from "./filesystem/filesystem.module";
 import { UtilsModule } from "./utils/utils.module";
+import { FFmpegModule } from "./ffmpeg/ffmpeg.module";
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { UtilsModule } from "./utils/utils.module";
     PrismaModule,
     FilesystemModule,
     UtilsModule,
+    FFmpegModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
