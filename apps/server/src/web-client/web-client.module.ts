@@ -24,9 +24,7 @@ const webClientFactory = {
     await vite.listen(5005);
 
     // Because otherwise the log statement would be buried inside Nest startup logs
-    setTimeout(() => {
-      console.log("> Web client vXXX ready at http://localhost:5005");
-    });
+    console.log("> Web client vXXX ready at http://localhost:5005");
 
     return vite;
   },

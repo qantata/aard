@@ -1,9 +1,8 @@
 import * as dotenv from "dotenv";
 
-import { DATABASE_URL, IS_DEV, IS_PKG } from "./constants";
+import { DATABASE_URL, IS_DEV, IS_PKG } from "@/utils/constants";
 
-// Loads environment files
-const config = () => {
+export default function () {
   // Need to set here and not .env file because it uses os.homedir()
   process.env.DATABASE_URL = `file:${DATABASE_URL}`;
 
@@ -21,6 +20,14 @@ const config = () => {
     dotenv.config({
       path: `${BASE}/.env.development.local`,
     });
+
+    dotenv.config({
+      path: `${BASE}/prisma/.env.development`,
+    });
+
+    dotenv.config({
+      path: `${BASE}/prisma/.env.development.local`,
+    });
   } else {
     dotenv.config({
       path: `${BASE}/.env.production`,
@@ -29,9 +36,17 @@ const config = () => {
     dotenv.config({
       path: `${BASE}/.env.production.local`,
     });
-  }
-};
 
-export default {
-  config,
-};
+    dotenv.config({
+      path: `${BASE}/prisma/.env.production`,
+    });
+
+    dotenv.config({
+      path: `${BASE}/prisma/.env.production.local`,
+    });
+  }
+
+  return {
+    ...process.env,
+  };
+}
