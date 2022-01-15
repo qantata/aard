@@ -2,14 +2,15 @@ import { Controller, Get, HttpStatus, Param, Req, Res } from "@nestjs/common";
 import { Request, Response } from "express";
 import * as path from "path";
 import * as fs from "fs";
-
-import { context } from "@/nexus/context";
+import { PrismaService } from "@/prisma/prisma.service";
 
 @Controller()
 export class MoviesController {
+  constructor(private prisma: PrismaService) {}
+
   @Get(":id/cover")
   async cover(@Req() req: Request, @Res() res: Response, @Param("id") id: string) {
-    const movie = await context().prisma.movie.findUnique({
+    const movie = await this.prisma.movie.findUnique({
       where: {
         id,
       },

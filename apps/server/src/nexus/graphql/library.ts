@@ -1,7 +1,6 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 
 import { Library as PLibrary } from "@lib/nexus-prisma";
-import { isDirectory } from "@/utils/filesystem";
 
 export const Library = objectType({
   name: PLibrary.$name,
@@ -33,7 +32,7 @@ export const MutationCreateLibrary = extendType({
         root: nonNull(stringArg()),
       },
       async resolve(_root, args, ctx) {
-        const isDir = await isDirectory(args.root);
+        const isDir = await ctx.filesystem.isDirectory(args.root);
         // TODO: Send an actual error instead of just null
         if (!isDir) {
           return null;

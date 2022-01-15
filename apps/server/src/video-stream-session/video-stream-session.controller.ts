@@ -1,21 +1,23 @@
 import { Controller, Get, HttpStatus, Param, Req, Res } from "@nestjs/common";
-import { Request, Response } from "express";
+import { Response } from "express";
 import * as path from "path";
 import * as fs from "fs";
 
-import { context } from "@/nexus/context";
-import { getSessionStreamPath } from "@/utils/paths";
-import { handleStreamSegmentRequest } from "@/utils/transcode-manager";
-import { parseProbeDataString } from "@/utils/ffprobe-transformer";
 import { VideoStreamSessionManagerService } from "@/video-stream-session-manager/video-stream-session-manager.service";
+import { UtilsService } from "@/utils/utils.service";
+import { PrismaService } from "@/prisma/prisma.service";
 
 @Controller()
 export class VideoStreamSessionController {
-  constructor(private videoStreamSessionManager: VideoStreamSessionManagerService) {}
+  constructor(
+    private videoStreamSessionManager: VideoStreamSessionManagerService,
+    private utils: UtilsService,
+    private prisma: PrismaService
+  ) {}
 
   @Get(":id/direct")
   async direct(@Res() res: Response, @Param("id") id: string) {
-    const session = await context().prisma.videoStreamSession.findUnique({
+    const session = await this.prisma.videoStreamSession.findUnique({
       where: {
         id,
       },
@@ -33,7 +35,7 @@ export class VideoStreamSessionController {
 
   @Get(":sessionId/:file")
   async sessionFile(@Res() res: Response, @Param("sessionId") sessionId: string, @Param("file") file: string) {
-    const session = await context().prisma.videoStreamSession.findUnique({
+    const session = await this.prisma.videoStreamSession.findUnique({
       where: {
         id: sessionId,
       },
@@ -42,7 +44,7 @@ export class VideoStreamSessionController {
     if (!session) {
       res.status(HttpStatus.NOT_FOUND).send();
     } else {
-      res.sendFile(path.join(getSessionStreamPath(session.id), file));
+      res.sendFile(path.join(this.utils.getSessionStreamPath(session.id), file));
     }
   }
 
@@ -53,7 +55,7 @@ export class VideoStreamSessionController {
     @Param("streamId") streamId: string,
     @Param("file") file: string
   ) {
-    const session = await context().prisma.videoStreamSession.findUnique({
+    const session = await this.prisma.videoStreamSession.findUnique({
       where: {
         id: sessionId,
       },
@@ -80,7 +82,7 @@ export class VideoStreamSessionController {
       return;
     }
 
-    const filepath = getSessionStreamPath(session.id, profile.id, file);
+    const filepath = this.utils.getSessionStreamPath(session.id, profile.id, file);
 
     // Requested files can be .m3u8 or .ts, .ts needs transcoding
     if (file.endsWith(".ts")) {

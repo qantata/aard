@@ -9,7 +9,7 @@ export type Env = {
   DATABASE_PATH: string;
   DATABASE_URL: string;
   PKG_SERVER_DIR: string;
-  version: string;
+  VERSION: string;
 };
 
 export default function () {
@@ -66,14 +66,11 @@ export default function () {
     DATABASE_PATH,
     DATABASE_URL: `file:${DATABASE_PATH}`,
     PKG_SERVER_DIR: "/snapshot/aard/apps/server",
-    version: process.env.AARD_VERSION !== undefined ? process.env.AARD_VERSION : "UNKNOWN",
+    VERSION: process.env.AARD_VERSION !== undefined ? process.env.AARD_VERSION : "UNKNOWN",
   };
 
-  // Set these manually to process.env because for some reason the NestJs ConfigModule doesn't instantly
-  // set them and some things like the Prisma migration needs them to be set instantly in process.env.
-  for (const key of Object.keys(computed)) {
-    process.env[key] = computed[key];
-  }
+  // Set this manually because prisma needs this to be loaded into process.env
+  process.env["DATABASE_URL"] = computed.DATABASE_URL;
 
   return {
     ...process.env,

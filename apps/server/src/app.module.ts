@@ -7,7 +7,6 @@ import env from "./config/env";
 import binaryHack from "./config/binary-hack";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { GraphqlConfigModule } from "./graphql-config/graphql-config.module";
 import { GraphqlConfigService } from "./graphql-config/graphql-config.service";
 import { WebClientModule } from "./web-client/web-client.module";
 import { MoviesModule } from "./movies/movies.module";
@@ -18,6 +17,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { FilesystemModule } from "./filesystem/filesystem.module";
 import { UtilsModule } from "./utils/utils.module";
 import { FFmpegModule } from "./ffmpeg/ffmpeg.module";
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [
@@ -26,7 +26,14 @@ import { FFmpegModule } from "./ffmpeg/ffmpeg.module";
     }),
     GraphQLModule.forRootAsync({
       useClass: GraphqlConfigService,
-      imports: [GraphqlConfigModule, PrismaModule],
+      imports: [
+        ConfigModule,
+        PrismaModule,
+        UtilsModule,
+        FilesystemModule,
+        FFmpegModule,
+        VideoStreamSessionManagerModule,
+      ],
     }),
     RouterModule.register([
       {
@@ -51,6 +58,7 @@ import { FFmpegModule } from "./ffmpeg/ffmpeg.module";
     FilesystemModule,
     UtilsModule,
     FFmpegModule,
+    LibraryModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

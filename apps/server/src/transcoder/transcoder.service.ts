@@ -320,4 +320,10 @@ export class TranscoderService {
   onSegmentTranscoded(callback: (segment: number) => void) {
     this.onSegmentTranscodedCallback = callback;
   }
+
+  destroy() {
+    console.log("Destroying transcoder");
+    this.disableWatcher();
+    this.process?.kill();
+  }
 }

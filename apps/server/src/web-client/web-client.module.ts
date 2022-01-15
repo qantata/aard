@@ -1,14 +1,20 @@
-import { IS_PKG } from "@/utils/constants";
-import { DynamicModule, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createServer } from "vite";
 
 import { WebClientService } from "./web-client.service";
+import { Env } from "@/config/env";
 
 const webClientFactory = {
   provide: "VITE",
-  useFactory: async () => {
+  inject: [ConfigService],
+  useFactory: async (config: ConfigService<Env>) => {
     const vite = await createServer({
-      root: IS_PKG ? undefined : "../web",
+      root: config.get("IS_PKG", {
+        infer: true,
+      })
+        ? undefined
+        : "../web",
       server: {
         // Need proxy so we can have a reachable API (Vite uses all the routes)
         proxy: {
@@ -31,6 +37,7 @@ const webClientFactory = {
 };
 
 @Module({
+  imports: [ConfigModule],
   providers: [webClientFactory, WebClientService],
   exports: [WebClientService],
 })

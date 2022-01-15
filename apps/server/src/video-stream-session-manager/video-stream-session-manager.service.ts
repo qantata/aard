@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { ModuleRef } from "@nestjs/core";
 import { VideoStreamSession, VideoStreamProfile, VideoFile } from ".prisma/client";
+import * as fse from "fs-extra";
 
 import { RequestSegmentOptions, RequestSegmentReturnType, TranscoderService } from "@/transcoder/transcoder.service";
-import { getSessionStreamPath } from "@/utils/paths";
-import { parseProbeDataString } from "@/utils/ffprobe-transformer";
+import { FFmpegService } from "@/ffmpeg/ffmpeg.service";
+import { UtilsService } from "@/utils/utils.service";
 
 type Transcoders = {
   [sessionId: string]: TranscoderService;
@@ -14,7 +15,7 @@ type Transcoders = {
 export class VideoStreamSessionManagerService {
   private transcoders: Transcoders;
 
-  constructor(private moduleRef: ModuleRef) {
+  constructor(private moduleRef: ModuleRef, private ffmpeg: FFmpegService, private utils: UtilsService) {
     this.transcoders = {};
   }
 
@@ -30,12 +31,12 @@ export class VideoStreamSessionManagerService {
       this.transcoders[session.id] = transcoder;
     }
 
-    const probeData = parseProbeDataString(session.file.probeData);
+    const probeData = this.ffmpeg.parseProbeDataString(session.file.probeData);
 
     const options: RequestSegmentOptions = {
       segment,
       filepath: session.file.path,
-      outDir: getSessionStreamPath(session.id, profile.id),
+      outDir: this.utils.getSessionStreamPath(session.id, profile.id),
       fps: probeData.videoStreams[0].fps,
       videoStreamIndex: probeData.videoStreams[0].index,
       audioStreamIndex: probeData.audioStreams.length ? probeData.audioStreams[0].index : undefined,
@@ -53,5 +54,16 @@ export class VideoStreamSessionManagerService {
         if (segment === transcodedSegment) resolve();
       });
     });
+  }
+
+  async handleSessionDeletion(sessionId: string) {
+    this.transcoders[sessionId]?.destroy();
+    delete this.transcoders[sessionId];
+
+    try {
+      await fse.remove(this.utils.getSessionStreamPath(sessionId));
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

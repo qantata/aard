@@ -28,6 +28,7 @@
     "fix-nexus-prisma-pkg": "PKG=true ts-node scripts/fix-nexus-prisma.ts"
   },
   "dependencies": {
+    "@ctrl/video-filename-parser": "3.x",
     "@nestjs/common": "8.0.0",
     "@nestjs/config": "1.1.5",
     "@nestjs/core": "8.0.0",
@@ -35,14 +36,18 @@
     "@nestjs/platform-express": "8.0.0",
     "@prisma/client": "3.5.0",
     "@prisma/migrate": "3.5.0",
+    "@prisma/sdk": "3.5.0",
     "apollo-server-express": "3.5.0",
+    "bottleneck": "2.19.5",
     "chokidar": "3.5.2",
     "dotenv": "10.0.0",
     "graphql": "15.8.0",
+    "klaw": "4.0.1",
     "nexus": "1.1.0",
     "nexus-prisma": "0.35.0",
     "reflect-metadata": "0.1.13",
-    "rxjs": "7.2.0"
+    "rxjs": "7.2.0",
+    "through2": "4.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "8.0.0",

@@ -6,9 +6,6 @@ import {
   VideoStreamProfile as PVideoStreamProfile,
   VideoStreamSession as PVideoStreamSession,
 } from "@lib/nexus-prisma";
-import { parseProbeDataString } from "@/utils/ffprobe-transformer";
-import { getSessionStreamPath } from "@/utils/paths";
-import { handleSessionDeletion } from "@/utils/transcode-manager";
 
 export const VideoStreamSession = objectType({
   name: "VideoStreamSession",
@@ -149,7 +146,7 @@ export const MutationDeleteVideoStreamSession = extendType({
           });
 
           // Make sure to kill transcoders
-          handleSessionDeletion(args.id);
+          ctx.videoStreamSessionManager.handleSessionDeletion(args.id);
           return true;
         } catch (err) {
           console.error(err);
@@ -185,7 +182,7 @@ export const MutationCreateVideoStreamSession = extendType({
           return null;
         }
 
-        const probeData = parseProbeDataString(entry.files[0].probeData);
+        const probeData = ctx.ffmpeg.parseProbeDataString(entry.files[0].probeData);
         let isContainerCompatible = false;
         let isVideoCodecCompatible = false;
         let isAudioCodecCompatible = false;
@@ -284,7 +281,7 @@ export const MutationCreateVideoStreamSession = extendType({
           },
         ];
 
-        const streamDir = getSessionStreamPath(session.id);
+        const streamDir = ctx.utils.getSessionStreamPath(session.id);
 
         let masterManifest = "";
         masterManifest += "#EXTM3U\n";
@@ -316,7 +313,7 @@ export const MutationCreateVideoStreamSession = extendType({
               },
             });
 
-            const profileDir = getSessionStreamPath(session.id, profile.id);
+            const profileDir = ctx.utils.getSessionStreamPath(session.id, profile.id);
             await fse.ensureDir(profileDir);
 
             const segmentDuration = 2;
