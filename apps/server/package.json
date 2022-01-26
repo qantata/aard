@@ -5,9 +5,14 @@
   "author": "",
   "private": true,
   "license": "AGPL-3.0",
+  "bin": "dist/main.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "pnpm gen-prod-env && pnpm fix-nexus-prisma-pkg && nest build",
+    "package": "pnpx pkg .",
+    "bundle": "mkdir -p bundle && pnpm copy-migration-engine-bin && cd bundle && mv ../server aard && cp ../../web/dist/index.html . && cp -R ../../web/dist/assets . && mkdir -p prisma && cp -R ../prisma/migrations prisma && cp ../prisma/schema.prisma prisma",
+    "copy-migration-engine-bin": "cd bundle && mkdir -p lib && cp ../../../node_modules/.pnpm/@prisma+sdk@3.5.0/node_modules/@prisma/engines/migration-engine-debian-openssl-1.1.x lib",
+    "gen-prod-env": "AARD_NEXT_VERSION=$npm_package_version ts-node scripts/prebuild.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "pnpm fix-nexus-prisma && NODE_ENV=development nest start --watch",
@@ -37,10 +42,12 @@
     "@prisma/client": "3.5.0",
     "@prisma/migrate": "3.5.0",
     "@prisma/sdk": "3.5.0",
+    "apollo-server-core": "3.6.2",
     "apollo-server-express": "3.5.0",
     "bottleneck": "2.19.5",
     "chokidar": "3.5.2",
     "dotenv": "10.0.0",
+    "fs-extra": "10.0.0",
     "graphql": "15.8.0",
     "klaw": "4.0.1",
     "nexus": "1.1.0",
@@ -92,5 +99,16 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pkg": {
+    "assets": [
+      ".env",
+      "src/nexus/context.d.ts",
+      "src/nexus/nexus.d.ts",
+      "node_modules/.prisma/client/index.d.ts"
+    ],
+    "targets": [
+      "node16-linux-x64"
+    ]
   }
 }

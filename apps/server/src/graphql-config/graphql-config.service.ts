@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { GqlOptionsFactory, GqlModuleOptions } from "@nestjs/graphql";
-import { PrismaClient } from ".prisma/client";
 import { makeSchema } from "nexus";
 import * as path from "path";
 
@@ -38,6 +37,20 @@ export class GraphqlConfigService implements GqlOptionsFactory {
       "index.d.ts"
     );
 
+    const nexusTypegenPath = path.join(
+      this.config.get("IS_PKG", { infer: true }) ? this.config.get("PKG_SERVER_DIR", { infer: true }) : process.cwd(),
+      "src",
+      "nexus",
+      "nexus.d.ts"
+    );
+
+    const contextTypeModulePath = path.join(
+      this.config.get("IS_PKG", { infer: true }) ? this.config.get("PKG_SERVER_DIR", { infer: true }) : process.cwd(),
+      "src",
+      "nexus",
+      "context.d.ts"
+    );
+
     const context = (): Context => {
       return {
         prisma: this.prisma,
@@ -52,14 +65,14 @@ export class GraphqlConfigService implements GqlOptionsFactory {
       types,
       outputs: {
         schema: path.join(process.cwd(), "schema.graphql"),
-        typegen: path.join(process.cwd(), "src", "nexus", "nexus.d.ts"),
+        typegen: nexusTypegenPath,
       },
       sourceTypes: {
         modules: [{ module: sourceTypesPath, alias: "prisma" }],
         debug: process.env.NODE_ENV === "development",
       },
       contextType: {
-        module: path.join(process.cwd(), "src", "nexus", "context.d.ts"),
+        module: contextTypeModulePath,
         export: "Context",
       },
       nonNullDefaults: {
