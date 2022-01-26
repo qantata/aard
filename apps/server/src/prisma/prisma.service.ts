@@ -6,7 +6,7 @@ import * as path from "path";
 import * as fse from "fs-extra";
 
 import { Env } from "@/config/env";
-import { Library } from "@lib/nexus-prisma";
+import { Library, Movie, VideoFile } from "@lib/nexus-prisma";
 import { LibraryService } from "@/library/library.service";
 
 @Injectable()
@@ -31,6 +31,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   private async applyMiddleware() {
+    // Scan library when it's created
     this.$use(async (params, next) => {
       const result = await next(params);
 

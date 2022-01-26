@@ -131,7 +131,6 @@ export class LibraryService {
             create: {
               id: `video-file${Math.random() * 100000}`,
               path: filepath,
-              // TODO: Let's not do this :)
               rawProbeData: JSON.stringify(rawProbeData),
               probeData: JSON.stringify(probeData),
             },

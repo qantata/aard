@@ -187,17 +187,14 @@ export const MutationCreateVideoStreamSession = extendType({
         let isVideoCodecCompatible = false;
         let isAudioCodecCompatible = false;
 
-        // @ts-ignore TODO: Try to make these TS safe
         if (args.profile.containers[probeData.container]) {
           isContainerCompatible = true;
         }
 
-        // @ts-ignore
         if (args.profile.videoCodecs[probeData.videoStreams[0].codec]) {
           isVideoCodecCompatible = true;
         }
 
-        // @ts-ignore
         if (probeData.audioStreams.length === 0 || args.profile.audioCodecs[probeData.audioStreams[0].codec]) {
           isAudioCodecCompatible = true;
         }
@@ -346,6 +343,7 @@ export const MutationCreateVideoStreamSession = extendType({
             await fse.writeFile(path.join(profileDir, "index.m3u8"), manifest);
 
             // Add an additional 15% to bandwith to count for container
+            // TODO: Once a client actually uses the bandwith values, remove this magic 15% number
             const bandwith = Math.floor((videoBitrate + (audioBitrate ?? 0)) * 1.15);
             masterManifest += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwith},RESOLUTION=${width}x${height}\n`;
             masterManifest += `${path.join(profileDir.replace(streamDir, ""), "index.m3u8").slice(1)}\n`;

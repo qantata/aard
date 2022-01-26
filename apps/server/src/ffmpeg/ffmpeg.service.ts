@@ -523,6 +523,8 @@ export class FFmpegService {
     return result;
   }
 
+  // This is typed, as opposed to just using JSON.parse.
+  // TODO: Verify the data? If the data is corrupted in the DB this'll lead to some weird errors.
   parseProbeDataString(data: string): VideoProbeResultType {
     return JSON.parse(data);
   }
