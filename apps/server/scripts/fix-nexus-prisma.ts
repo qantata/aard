@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 
 (() => {
   const clientPath = process.env.PKG
@@ -11,9 +11,9 @@ import path from "path";
 
   // By default the import paths are something like /home/.../project/node_modules/.prisma/client
   // That's why we need to change them to be dynamic
-  const str = `const { getPrismaClientDmmf } = require('../helpers/prisma')
-  const ModelsGenerator = require('../generator/models')
-  const { Runtime } = require('../generator/runtime/settingsSingleton')
+  const str = `const { getPrismaClientDmmf } = require('nexus-prisma/dist-cjs/helpers/prisma')
+  const ModelsGenerator = require('nexus-prisma/dist-cjs/generator/models/index')
+  const { Runtime } = require('nexus-prisma/dist-cjs/generator/runtime/settingsSingleton')
   
   const gentimeSettings = {
     "projectIdIntToGraphQL": "Int",
@@ -44,7 +44,7 @@ import path from "path";
     ...models,
   }\n`;
 
-  fs.writeFileSync("./node_modules/nexus-prisma/dist-cjs/runtime/index.js", str);
+  fs.writeFileSync("./lib/nexus-prisma/index.js", str);
 })();
 
 export {};

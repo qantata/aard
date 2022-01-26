@@ -3,9 +3,12 @@ node_modules
 dist
 dist-ssr
 *.local
-apps/server/src/nexus.d.ts
+*.env
+apps/old-server
+apps/server/src/nexus/nexus.d.ts
 apps/server/prisma/seed.ts
 apps/server/prisma/generated
+apps/server/lib/nexus-prisma
 apps/web/**/__generated__/**
 lib/
 .turbo

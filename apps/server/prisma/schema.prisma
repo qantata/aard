@@ -9,6 +9,7 @@ generator client {
 
 generator nexusPrisma {
   provider = "nexus-prisma"
+  output   = "../lib/nexus-prisma"
 }
 
 model Library {
